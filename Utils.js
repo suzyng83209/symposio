@@ -1,10 +1,10 @@
 function downloadFile(file) {
-    if (!fs.existsSync(process.env.uploadFolder)) {
-        fs.mkdirSync(process.env.uploadFolder);
+    if (!fs.existsSync(process.env.UPLOAD_FOLDER)) {
+        fs.mkdirSync(process.env.UPLOAD_FOLDER);
     }
 
     var url = url.indexOf('http') === -1 ? 'http:' + url : url,
-        localFile = process.env.uploadFolder + file.name,
+        localFile = process.env.UPLOAD_FOLDER + file.name,
         file = fs.createWriteStream(localFile),
         rem = request({ url: url });
 
@@ -21,15 +21,15 @@ function downloadFile(file) {
 }
 
 function downloadB64Data(b64Data, fileName) {
-    if (!fs.existsSync(process.env.uploadFolder)) {
-        fs.mkdirSync(process.env.uploadFolder);
+    if (!fs.existsSync(process.env.UPLOAD_FOLDER)) {
+        fs.mkdirSync(process.env.UPLOAD_FOLDER);
     }
 
     if (/^data:[a-z]+\/[a-z]+;base64,/.test(b64Data)) {
         b64Data = b64Data.replace(/^data:[a-z]+\/[a-z]+;base64,/, ''); // or b64Data.splice(b64Data.lastIndexOf(',') + 1)
     }
 
-    var filePath = process.env.uploadFolder + fileName;
+    var filePath = process.env.UPLOAD_FOLDER + fileName;
 
     return new Promise((resolve, reject) => {
         fs.writeFile(filePath, b64Data, 'base64', err => {
@@ -40,7 +40,7 @@ function downloadB64Data(b64Data, fileName) {
 }
 
 function cleanUp() {
-    const dirPath = process.env.uploadFolder;
+    const dirPath = process.env.UPLOAD_FOLDER;
     return new Promise(function(resolve, reject) {
         try {
             var files = fs.readdirSync(dirPath);
