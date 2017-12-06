@@ -13,17 +13,19 @@ router.get('/merge', (req, res, next) => {
         return Promise.all([
             Utils.downloadB64Data(local, `local-${Date.now()}`),
             Utils.downloadB64Data(remote, `remote-${Date.now()}`)
-        ])
-            .then(([localPath, remotePath]) => {
-                return ffmpegUtils.merge(localPath, remotePath);
-            })
-            .then(outputPath => {
-                // TODO: upload to s3
-            })
-            .then(s3Key => {
-                return s3Key;
-            });
-    }).then(s3Files => res.apiResponse({ files: s3Files }));
+        ]).then(([localPath, remotePath]) => {
+            console.log('***PATHS***: ', localPath, remotePath);
+            // return ffmpegUtils.merge(localPath, remotePath);
+        });
+        // .then(outputPath => {
+        //     // TODO: upload to s3
+        // })
+        // .then(s3Key => {
+        //     return s3Key;
+        // });
+    })
+        .then(() => res.apiResponse({ success: true }))
+        .catch(next);
 });
 
 module.exports = router;

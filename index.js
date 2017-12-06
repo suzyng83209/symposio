@@ -3,13 +3,9 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-const Promise = require('bluebird');
 const serverRoutes = require('./server');
 
 const app = express();
-
-const Utils = require('./Utils');
-const ffmpeg = require('./ffmpeg');
 
 app.use(bodyParser.json());
 
@@ -17,6 +13,10 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'interview-app/build')));
 
 // routes
+app.get('/ping', (_, res) => {
+    console.log('pinged');
+    res.status(200).send('Symposium v0.1');
+});
 app.use('/api', serverRoutes);
 
 app.get('*', (req, res) => {

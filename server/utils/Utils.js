@@ -89,7 +89,7 @@ function b64toBlob(b64Data, fileName, contentType = '', sliceSize = 512) {
 
 // replace(/^data:[a-z]+\/[a-z]+;base64,/, "")
 
-export default {
+module.exports = {
     downloadFile,
     downloadB64Data,
     cleanUp

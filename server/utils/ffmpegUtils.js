@@ -20,6 +20,27 @@ function mergeAudio(audioPath1, audioPath2) {
     });
 }
 
+function convert(originalAudio) { // I just want to chain it. Sue me.
+    this.to = outputType => {
+        const filePath = originalAudio.replace(/.[a-zA-Z0-9]+$/, `.${outputType}`);
+        return new Promise((resolve, reject) => {
+            ffmpeg()
+                .input(originalAudio)
+                .format(outputType)
+                .on('error', err => {
+                    console.log(err);
+                    reject(err);
+                })
+                .on('end', () => {
+                    resolve(filePath);
+                })
+                .save(filePath);
+        });
+    };
+    return this;
+}
+
 module.exports = {
-    merge: mergeAudio
+    merge: mergeAudio,
+    convert,
 };
