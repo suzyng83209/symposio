@@ -1,8 +1,9 @@
 const router = require('express').Router();
+const Promise = require('bluebird');
 const Utils = require('./utils/Utils');
 const ffmpegUtils = require('./utils/ffmpegUtils');
 
-router.get('/merge', (req, res, next) => {
+router.post('/merge', (req, res, next) => {
     var { data } = req.body;
 
     if (!data || !data.length) {
@@ -11,8 +12,8 @@ router.get('/merge', (req, res, next) => {
 
     Promise.map(data, ([local, remote]) => {
         return Promise.all([
-            Utils.downloadB64Data(local, `local-${Date.now()}`),
-            Utils.downloadB64Data(remote, `remote-${Date.now()}`)
+            Utils.downloadB64Data(local, `local-${Date.now()}.webm`),
+            Utils.downloadB64Data(remote, `remote-${Date.now()}.webm`)
         ]).then(([localPath, remotePath]) => {
             console.log('***PATHS***: ', localPath, remotePath);
             // return ffmpegUtils.merge(localPath, remotePath);
@@ -24,7 +25,7 @@ router.get('/merge', (req, res, next) => {
         //     return s3Key;
         // });
     })
-        .then(() => res.apiResponse({ success: true }))
+        .then(() => res.status(200).send({ success: true }))
         .catch(next);
 });
 
