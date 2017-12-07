@@ -34,7 +34,7 @@ function downloadB64Data(b64Data, fileName) {
     var filePath = process.env.UPLOAD_FOLDER + fileName;
 
     return new Promise((resolve, reject) => {
-        fs.writeFile(filePath, b64Data, 'base64', err => {
+        fs.writeFile(filePath, b64Data, err => {
             if (err) reject(err);
             resolve(filePath);
         });

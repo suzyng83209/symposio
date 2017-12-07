@@ -2,7 +2,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const Promise = require('bluebird');
 
 function mergeAudio(audioPath1, audioPath2) {
-    var outputFile = process.env.UPLOAD_FOLDER + 'combined-' + Date.now().toString();
+    var outputFile = process.env.UPLOAD_FOLDER + `combined-${Date.now()}.webm`;
 
     return new Promise((resolve, reject) => {
         ffmpeg()
@@ -20,7 +20,8 @@ function mergeAudio(audioPath1, audioPath2) {
     });
 }
 
-function convert(originalAudio) { // I just want to chain it. Sue me.
+function convert(originalAudio) {
+    // I just want to chain it. Sue me.
     this.to = outputType => {
         const filePath = originalAudio.replace(/.[a-zA-Z0-9]+$/, `.${outputType}`);
         return new Promise((resolve, reject) => {
@@ -42,5 +43,5 @@ function convert(originalAudio) { // I just want to chain it. Sue me.
 
 module.exports = {
     merge: mergeAudio,
-    convert,
+    convert
 };

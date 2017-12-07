@@ -16,14 +16,12 @@ router.post('/merge', (req, res, next) => {
             Utils.downloadB64Data(remote, `remote-${Date.now()}.webm`)
         ]).then(([localPath, remotePath]) => {
             console.log('***PATHS***: ', localPath, remotePath);
-            // return ffmpegUtils.merge(localPath, remotePath);
-        });
-        // .then(outputPath => {
-        //     // TODO: upload to s3
-        // })
-        // .then(s3Key => {
-        //     return s3Key;
-        // });
+            ffmpegUtils.merge(localPath, remotePath);
+            // TODO: 1. GENERATE TRANSCRIPT
+            // TODO: 2. COMBINE WEBM
+        }).then(() => {
+            // TODO: 3. UPLOAD TO S3
+        })
     })
         .then(() => res.status(200).send({ success: true }))
         .catch(next);
