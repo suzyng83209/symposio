@@ -23,6 +23,10 @@ function downloadFile(file) {
 }
 
 function downloadB64Data(b64Data, fileName) {
+    if (!b64Data) {
+        return Promise.resolve();
+    }
+
     if (!fs.existsSync(process.env.UPLOAD_FOLDER)) {
         fs.mkdirSync(process.env.UPLOAD_FOLDER);
     }
@@ -63,7 +67,7 @@ function cleanUp() {
     });
 }
 
-function b64toBlob(b64Data, fileName, contentType = '', sliceSize = 512) {
+function b64ToBlob(b64Data, fileName, contentType = '', sliceSize = 512) {
     if (/^data:[a-z]+\/[a-z]+;base64,/.test(b64Data)) {
         b64Data = b64Data.replace(/^data:[a-z]+\/[a-z]+;base64,/, ''); // or b64Data.splice(b64Data.lastIndexOf(',') + 1)
     }

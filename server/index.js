@@ -11,16 +11,23 @@ router.post('/merge', (req, res, next) => {
     }
 
     Promise.map(data, ([local, remote]) => {
+        var _local, _remote, _combined;
         return Promise.all([
             Utils.downloadB64Data(local, `local-${Date.now()}.webm`),
             Utils.downloadB64Data(remote, `remote-${Date.now()}.webm`)
         ]).then(([localPath, remotePath]) => {
+            _local = localPath;
+            _remote = remotePath;
             console.log('***PATHS***: ', localPath, remotePath);
-            ffmpegUtils.merge(localPath, remotePath);
-            // TODO: 1. GENERATE TRANSCRIPT
-            // TODO: 2. COMBINE WEBM
+            var promise = remotePath ? ffmpegUtils.merge(localPath, remotePath) : Promise.resolve();
+            return promise;
+            // TODO: 2. GENERATE TRANSCRIPT
+        }).then(combinedPath => {
+            _combined = combinedPath;
+            // TODO: 3. UPLOAD TO S3 || Google Cloud Storage
+            return;
         }).then(() => {
-            // TODO: 3. UPLOAD TO S3
+            
         })
     })
         .then(() => res.status(200).send({ success: true }))
