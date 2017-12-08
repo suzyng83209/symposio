@@ -6,7 +6,7 @@ import axios from 'axios';
  * the audio container with id="local_assets"
  * @param {array} recordings - base64 encoded dataUris
  */
-function generateSoloAudioAssets(recordings = []) {
+export const generateSoloAudioAssets = (recordings = []) => {
     recordings.reduce((audioContainerEl, base64, i) => {
         const blob = b64ToBlob(base64);
         const file = new File([blob], `local-${i}-${Date.now()}.webm`);
@@ -14,13 +14,17 @@ function generateSoloAudioAssets(recordings = []) {
         return audioContainerEl;
     }, document.getElementById('local_assets'));
     return;
-}
+};
 
-function generateAudioAssets(recordings = []) {
+export const generateAudioAssets = (recordings = []) => {
     return axios.post(`api/merge`, { data: recordings });
-}
+};
 
-function b64ToBlob(b64Data, contentType = '', sliceSize = 512) {
+export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {
+    if (/^data:[a-z]+\/[a-z]+;base64,/.test(b64Data)) {
+        b64Data = b64Data.replace(/^data:[a-z]+\/[a-z]+;base64,/, ''); // or b64Data.splice(b64Data.lastIndexOf(',') + 1)
+    }
+
     var byteCharacters = atob(b64Data);
     var byteArrays = [];
 
@@ -39,20 +43,13 @@ function b64ToBlob(b64Data, contentType = '', sliceSize = 512) {
 
     var blob = new Blob(byteArrays, { type: contentType });
     return blob;
-}
+};
 
-function createAudioEl(src) {
+export const createAudioEl = src => {
     var audio = document.createElement('audio');
     audio.controls = 'controls';
     audio.preload = 'metadata';
     audio.volume = 1;
     audio.src = src;
     return audio;
-}
-
-export default {
-    generateSoloAudioAssets,
-    generateAudioAssets,
-    createAudioEl,
-    b64ToBlob
 };
