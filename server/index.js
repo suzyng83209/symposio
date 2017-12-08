@@ -4,7 +4,7 @@ const uploadFile = require('./utils/S3Utils').uploadFile;
 const mergeAudio = require('./utils/ffmpegUtils').mergeAudio;
 const downloadB64Data = require('./utils/Utils').downloadB64Data;
 
-router.pose('/upload', (req, res, next) => {
+router.post('/upload', (req, res, next) => {
     var { data } = req.body;
 
     if (!data || !data.length) {
