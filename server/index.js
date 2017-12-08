@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const Promise = require('bluebird');
-const Utils = require('./utils/Utils');
-const ffmpegUtils = require('./utils/ffmpegUtils');
+const uploadFile = require('./utils/S3Utils').uploadFile;
+const mergeAudio = require('./utils/ffmpegUtils').mergeAudio;
+const downloadB64Data = require('./utils/Utils').downloadB64Data;
 
 router.pose('/upload', (req, res, next) => {
     var { data } = req.body;
@@ -10,7 +11,18 @@ router.pose('/upload', (req, res, next) => {
         throw new Error('no data');
     }
 
-    S3Utils.upload(data);
+    return Promise.map(data, base64 => downloadB64Data(base64, `local-${Date.now()}.webm`), {
+        concurrency: 1,
+    })
+        .then(arrayOfFilePaths =>
+            Promise.map(arrayOfFilePaths, filePath =>
+                uploadFile({ filePath, key: `local/${Date.now()}.webm` }),
+            ),
+        )
+        .then(arrayOfS3Keys => {
+            res.status(200).send(arrayOfS3Keys);
+        })
+        .catch(next);
 });
 
 router.post('/merge', (req, res, next) => {
@@ -20,37 +32,34 @@ router.post('/merge', (req, res, next) => {
         throw new Error('no data');
     }
 
+    var s3Keys = [];
+
     Promise.map(data, ([local, remote]) => {
-        var _local, _remote, _combined;
+        if (!local || !remote) {
+            throw new Error('missing parameter: base64 data');
+        }
         return Promise.all([
-            Utils.downloadB64Data(local, `local-${Date.now()}.webm`),
-            Utils.downloadB64Data(remote, `remote-${Date.now()}.webm`),
+            downloadB64Data(local, `local-${Date.now()}.webm`),
+            downloadB64Data(remote, `remote-${Date.now()}.webm`),
         ])
             .then(([localPath, remotePath]) => {
-                _local = localPath;
-                _remote = remotePath;
                 console.log('***PATHS***: ', localPath, remotePath);
-                var promise = remotePath
-                    ? ffmpegUtils.merge(localPath, remotePath)
-                    : Promise.resolve();
-                return promise;
+                return Promise.all([localPath, remotePath, mergeAudio(localPath, remotePath)]);
                 // TODO: 2. GENERATE TRANSCRIPT
             })
-            .then(combinedPath => {
-                _combined = combinedPath;
-
-                return Promise.map([
-                    S3Utils.upload(_local),
-                    S3Utils.upload(_remote),
-                    S3Utils.upload(_combined),
-                ]);
-                // TODO: 3. UPLOAD TO S3 || Google Cloud Storage
-            })
-            .then(s3Key => {
-                return s3Key;
+            .then(([local, remote, combined]) =>
+                Promise.all([
+                    uploadFile({ filePath: local, key: `local/${Date.now()}.webm` }),
+                    uploadFile({ filePath: remote, key: `remote/${Date.now()}.webm` }),
+                    uploadFile({ filePath: combined, key: `combined/${Date.now()}.webm` }),
+                ]),
+            )
+            .then(arrayOfKeys => {
+                arrayOfKeys.map(key => s3Keys.push(key));
+                return arrayOfKeys;
             });
     })
-        .then(() => res.status(200).send({ success: true }))
+        .then(arrayOfS3Keys => res.status(200).send({ s3Keys: arrayOfS3Keys, s3Keys_flat: s3Keys }))
         .catch(next);
 });
 

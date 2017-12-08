@@ -98,5 +98,5 @@ function b64ToBlob(b64Data, fileName, contentType = '', sliceSize = 512) {
 module.exports = {
     downloadFile,
     downloadB64Data,
-    cleanUp
+    cleanUp,
 };

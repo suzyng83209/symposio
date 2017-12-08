@@ -42,6 +42,6 @@ function convert(originalAudio) {
 }
 
 module.exports = {
-    merge: mergeAudio,
-    convert
+    mergeAudio,
+    convert,
 };
