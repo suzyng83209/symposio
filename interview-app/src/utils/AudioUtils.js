@@ -14,11 +14,21 @@ export const generateSoloAudioAssets = (recordings = []) => {
     //     return audioContainerEl;
     // }, document.getElementById('local_assets'));
     // return;
-    return axios.post(`api/upload`, { data: recordings });
+    return axios.post(`api/upload`, { data: recordings }).then(res => {
+        console.log(res);
+        var container = document.getElementById('local_assets');
+        (res.s3Keys || []).map(s3Key => {
+            const audioEl = createAudioEl(s3Key);
+            container.appendChild(audioEl);
+        });
+        return;
+    });
 };
 
 export const generateAudioAssets = (recordings = []) => {
-    return axios.post(`api/merge`, { data: recordings });
+    return axios.post(`api/merge`, { data: recordings }).then(res => {
+        console.log(res);
+    });
 };
 
 export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {

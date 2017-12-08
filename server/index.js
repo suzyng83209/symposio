@@ -20,7 +20,7 @@ router.post('/upload', (req, res, next) => {
             ),
         )
         .then(arrayOfS3Keys => {
-            res.status(200).send(arrayOfS3Keys);
+            res.status(200).send({ s3Keys: arrayOfS3Keys });
         })
         .catch(next);
 });
