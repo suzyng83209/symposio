@@ -24,4 +24,12 @@ yarn build
 yarn start
 ```
 
+# Run Docker
+```
+docker build --tag <image-name> ./
+
+docker run -p 0.0.0.0:9000:9000 -it <image-name>
+```
+
 Go to localhost:9000 or express-app port to view changes
+
