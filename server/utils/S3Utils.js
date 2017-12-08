@@ -14,7 +14,8 @@ const DEFAULT_PARAMS = {
 
 module.exports = {
     uploadFile: ({ filePath, key }) => {
-        const params = { ...DEFAULT_PARAMS, Body: fs.createReadStream(file), Key: key };
+        console.log('filepath', filePath);
+        const params = { ...DEFAULT_PARAMS, Body: fs.createReadStream(filePath), Key: key };
         return new Promise(function(resolve, reject) {
             new AWS.S3().upload(params, function(err, data) {
                 if (err) {

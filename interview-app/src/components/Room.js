@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import RecordRTC from 'recordrtc';
 import { Countdown } from './Misc';
 import RTCController from '../controllers/RTCController';
-import { generateSoloAudioAssets, generateAudioAssets } from '../utils/AudioUtils';
+import { generateSoloAudioAssets, generateAudioAssets, b64ToBlob } from '../utils/AudioUtils';
 
 class Room extends React.Component {
     constructor(props) {
@@ -14,7 +14,7 @@ class Room extends React.Component {
             countdown: '',
             recorder: null,
             recorderState: 'inactive',
-            recordings: []
+            recordings: [],
         };
     }
 
@@ -63,7 +63,7 @@ class Room extends React.Component {
             if (!this.state.recorder) return;
             return this.state.recorder.startRecording({
                 audio: true,
-                video: false
+                video: false,
             });
         }, 4000);
     };
@@ -77,7 +77,7 @@ class Room extends React.Component {
                 return recorder.stopRecording(() => {
                     recorder.getDataURL(dataUri => {
                         this.setState(prevState => ({
-                            recordings: prevState.recordings.concat(dataUri)
+                            recordings: prevState.recordings.concat(dataUri),
                         }));
                     });
                 });
@@ -102,7 +102,10 @@ class Room extends React.Component {
         }
         debugger;
         if (RTCController.isRoomEmpty()) {
-            return generateSoloAudioAssets(this.state.recordings);
+            const audioFiles = this.state.recordings.map(
+                recording => new File([b64ToBlob(recording)], `test-${Date.now()}.webm`),
+            );
+            return generateSoloAudioAssets(audioFiles);
         }
     };
 
@@ -129,7 +132,7 @@ class Room extends React.Component {
             recorderState: recorderState,
             onCommandSend: this.onCommandSend,
             onCommandReceived: this.onCommandReceived,
-            onDataReceived: this.onDataReceived
+            onDataReceived: this.onDataReceived,
         });
     }
 }
@@ -137,5 +140,5 @@ class Room extends React.Component {
 export default Room;
 
 Room.propTypes = {
-    children: PropTypes.func.isRequired
+    children: PropTypes.func.isRequired,
 };

@@ -1,4 +1,6 @@
 import axios from 'axios';
+import Promise from 'bluebird';
+import AWSController from '../controllers/AWSController';
 
 /** For single User
  * Iterates through the recordings, generating files
@@ -14,15 +16,19 @@ export const generateSoloAudioAssets = (recordings = []) => {
     //     return audioContainerEl;
     // }, document.getElementById('local_assets'));
     // return;
-    return axios.post(`api/upload`, { data: recordings }).then(res => {
-        console.log(res);
-        var container = document.getElementById('local_assets');
-        (res.s3Keys || []).map(s3Key => {
-            const audioEl = createAudioEl(s3Key);
-            container.appendChild(audioEl);
-        });
-        return;
-    });
+    // return axios.post(`api/upload`, { data: recordings }).then(({ data }) => {
+    //     console.log(data);
+    //     debugger;
+    //     var container = document.getElementById('local_assets');
+    //     (data.s3Keys || []).map(({ Location }) => {
+    //         const audioEl = createAudioEl(Location);
+    //         container.appendChild(audioEl);
+    //     });
+    //     return;
+    // });
+    AWSController.initialize()
+        .then(() => Promise.map(recordings, file => AWSController.upload(file)))
+        .then(console.log);
 };
 
 export const generateAudioAssets = (recordings = []) => {

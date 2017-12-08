@@ -20,17 +20,17 @@ var RTCController = {
             connection.session = {
                 audio: true,
                 video: true,
-                data: true
+                data: true,
             };
 
             connection.mediaConstraints = {
                 audio: true,
-                video: true
+                video: true,
             };
 
             connection.sdpConstraints.mandatory = {
                 OfferToReceiveAudio: true,
-                OfferToReceiveVideo: true
+                OfferToReceiveVideo: true,
             };
 
             connection.enableFileSharing = true;
@@ -104,14 +104,14 @@ var RTCController = {
     sendData(data) {
         this._instance.send({
             type: 'data',
-            data
+            data,
         });
     },
 
     sendMessage(message) {
         this._instance.send({
             type: 'message',
-            text: message
+            text: message,
         });
     },
 
@@ -119,7 +119,7 @@ var RTCController = {
         this._instance.send({
             type: 'command',
             text: command,
-            time: moment()
+            time: moment(),
         });
     },
 
@@ -127,9 +127,9 @@ var RTCController = {
         return new Promise(resolve =>
             this._instance.checkPresence(roomId, isRoomExists => {
                 return resolve(isRoomExists);
-            })
+            }),
         );
-    }
+    },
 };
 
 export default RTCController;
