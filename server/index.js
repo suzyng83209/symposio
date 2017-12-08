@@ -3,6 +3,16 @@ const Promise = require('bluebird');
 const Utils = require('./utils/Utils');
 const ffmpegUtils = require('./utils/ffmpegUtils');
 
+router.pose('/upload', (req, res, next) => {
+    var { data } = req.body;
+
+    if (!data || !data.length) {
+        throw new Error('no data');
+    }
+
+    S3Utils.upload(data);
+})
+
 router.post('/merge', (req, res, next) => {
     var { data } = req.body;
 
@@ -24,10 +34,15 @@ router.post('/merge', (req, res, next) => {
             // TODO: 2. GENERATE TRANSCRIPT
         }).then(combinedPath => {
             _combined = combinedPath;
-            // TODO: 3. UPLOAD TO S3 || Google Cloud Storage
-            return;
-        }).then(() => {
             
+            return Promise.map([
+                S3Utils.upload(_local),
+                S3Utils.upload(_remote),
+                S3Utils.upload(_combined)
+            ])
+            // TODO: 3. UPLOAD TO S3 || Google Cloud Storage
+        }).then(s3Key => {
+            return s3Key;
         })
     })
         .then(() => res.status(200).send({ success: true }))

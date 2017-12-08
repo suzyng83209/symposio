@@ -7,13 +7,14 @@ import axios from 'axios';
  * @param {array} recordings - base64 encoded dataUris
  */
 export const generateSoloAudioAssets = (recordings = []) => {
-    recordings.reduce((audioContainerEl, base64, i) => {
-        const blob = b64ToBlob(base64);
-        const file = new File([blob], `local-${i}-${Date.now()}.webm`);
-        audioContainerEl.appendChild(createAudioEl(file));
-        return audioContainerEl;
-    }, document.getElementById('local_assets'));
-    return;
+    // recordings.reduce((audioContainerEl, base64, i) => {
+    //     const blob = b64ToBlob(base64);
+    //     const file = new File([blob], `local-${i}-${Date.now()}.webm`);
+    //     audioContainerEl.appendChild(createAudioEl(file));
+    //     return audioContainerEl;
+    // }, document.getElementById('local_assets'));
+    // return;
+    return axios.post(`api/upload`, { data: recordings });
 };
 
 export const generateAudioAssets = (recordings = []) => {
@@ -21,6 +22,7 @@ export const generateAudioAssets = (recordings = []) => {
 };
 
 export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {
+    debugger;
     if (/^data:[a-z]+\/[a-z]+;base64,/.test(b64Data)) {
         b64Data = b64Data.replace(/^data:[a-z]+\/[a-z]+;base64,/, ''); // or b64Data.splice(b64Data.lastIndexOf(',') + 1)
     }
