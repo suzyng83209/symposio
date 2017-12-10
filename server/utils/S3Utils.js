@@ -16,12 +16,19 @@ module.exports = {
     uploadFile: ({ filePath, key }) => {
         console.log('filepath', filePath);
         const params = { ...DEFAULT_PARAMS, Body: fs.createReadStream(filePath), Key: key };
-        return new Promise(function(resolve, reject) {
-            new AWS.S3().upload(params, function(err, data) {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve(data);
+        return new Promise((resolve, reject) => {
+            new AWS.S3().upload(params, (err, data) => {
+                return err ? reject(err) : resolve(data);
+            });
+        });
+    },
+
+    fetchFile: filepath => {
+        console.log('fetching from ', filePath);
+        const params = { ...DEFAULT_PARAMS, Key: filePath };
+        return new Promise((resolve, reject) => {
+            new AWS.S3().getObject(params, (err, data) => {
+                return err ? reject(err) : resolve(data);
             });
         });
     },

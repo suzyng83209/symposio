@@ -21,9 +21,7 @@ export const generateSoloAudioAssets = (recordings = []) => {
 };
 
 export const generateAudioAssets = (recordings = []) => {
-    return axios.post(`api/merge`, { data: recordings }).then(res => {
-        console.log(res);
-    });
+    return axios.post(`api/merge`, { data: recordings });
 };
 
 export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {

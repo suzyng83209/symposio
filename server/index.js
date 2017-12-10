@@ -2,7 +2,8 @@ const router = require('express').Router();
 const Promise = require('bluebird');
 const auth = require('./auth');
 const Utils = require('./utils/Utils');
-const uploadFile = require('./utils/S3Utils').uploadFile;
+const S3Utils = require('./utils/S3Utils');
+const WatsonUtils = require('./utils/WatsonUtils');
 const mergeAudio = require('./utils/ffmpegUtils').mergeAudio;
 
 router.post('/upload', (req, res, next) => {
@@ -17,7 +18,7 @@ router.post('/upload', (req, res, next) => {
     })
         .then(arrayOfFilePaths =>
             Promise.map(arrayOfFilePaths, filePath =>
-                uploadFile({ filePath, key: `local/${Date.now()}.webm` }),
+                S3Utils.uploadFile({ filePath, key: `local/${Date.now()}.webm` }),
             ),
         )
         .then(arrayOfS3Keys => {
@@ -44,12 +45,34 @@ router.post('/merge', (req, res, next) => {
                 console.log('***PATHS***: ', localPath, remotePath);
                 const name = localPath.slice(localPath.lastIndexOf('/'));
                 return Promise.all([mergeAudio(localPath, remotePath), name]);
-                // TODO: 2. GENERATE TRANSCRIPT
             })
-            .then(([combinedPath, key]) => uploadFile({ filePath: combinedPath, key }));
+            .then(([combinedPath, key]) => S3Utils.uploadFile({ filePath: combinedPath, key }));
     })
         .then(s3Keys => res.status(200).send({ s3Keys }))
         .catch(next);
+});
+
+router.get('/transcript', (req, res, next) => {
+    var { localKey, remoteKey } = req.query;
+    if (!localKey && !remoteKey) {
+        throw new Error('no files specified for transcript generation.');
+    }
+    return Promise.all([
+        S3Utils.fetchFile(localKey)
+            .then(WatsonUtils.generateTranscript)
+            .then(WatsonUtils.massageTranscript),
+        S3Utils.fetchFile(remoteKey)
+            .then(WatsonUtils.generateTranscript)
+            .then(WatsonUtils.massageTranscript)
+            .catch(),
+    ])
+        .then(([localTranscript, remoteTranscript]) => {
+            if (!remoteTranscript) {
+                return localTranscript;
+            }
+            // merge the two somehow.
+        })
+        .then(console.log);
 });
 
 module.exports = router;

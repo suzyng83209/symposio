@@ -125,7 +125,7 @@ class Room extends React.Component {
         return generateAudioAssets(this.state.s3Keys.concat(data)).then(res => {
             res.map(s3Key => {
                 var fileType = s3Key.Key.replace(/\/[a-zA-Z0-9|-]+\.webm$/, '');
-                document.getElementById(fileType).appendChild(createAudioEl(s3Key));
+                document.getElementById(`${fileType}_assets`).appendChild(createAudioEl(s3Key));
             });
         });
     };
