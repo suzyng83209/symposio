@@ -11,7 +11,7 @@ class Room extends React.Component {
         super(props);
         this.state = {
             loading: true,
-            countdown: '',
+            countdown: null,
             recorder: null,
             recorderState: 'inactive',
             recordings: [],
@@ -53,7 +53,7 @@ class Room extends React.Component {
     handleCountdownStart = () => {
         var countdown = 3;
         const countdownTimer = setInterval(() => {
-            this.setState({ countdown: countdown-- });
+            this.setState({ countdown: countdown--, recorderState: '' });
             if (countdown < 0) {
                 clearInterval(countdownTimer);
             }
@@ -75,11 +75,12 @@ class Room extends React.Component {
                 return this.handleCountdownStart();
             case 'stop':
                 return recorder.stopRecording(() => {
-                    recorder.getDataURL(dataUri => {
-                        this.setState(prevState => ({
-                            recordings: prevState.recordings.concat(dataUri),
-                        }));
+                    const audioFile = new File([recorder.getBlob()], `test-${Date.now()}.webm`, {
+                        type: 'audio/webm ',
                     });
+                    this.setState(prevState => ({
+                        recordings: prevState.recordings.concat(audioFile),
+                    }));
                 });
             case 'pause':
             case 'resume':
@@ -100,12 +101,11 @@ class Room extends React.Component {
         if (command !== 'send-audio') {
             return this.handleRecorderCommand(command);
         }
-        debugger;
         if (RTCController.isRoomEmpty()) {
-            const audioFiles = this.state.recordings.map(
-                recording => new File([b64ToBlob(recording)], `test-${Date.now()}.webm`),
-            );
-            return generateSoloAudioAssets(audioFiles);
+            // const audioFiles = this.state.recordings.map(
+            //     recording => new File([b64ToBlob(recording)], `test-${Date.now()}.webm`),
+            // );
+            return generateSoloAudioAssets(this.state.recordings);
         }
     };
 
@@ -126,10 +126,11 @@ class Room extends React.Component {
     };
 
     render() {
-        const { loading, recorderState } = this.state;
+        const { loading, countdown, recorderState } = this.state;
         if (loading) return null;
         return this.props.children({
-            recorderState: recorderState,
+            countdown,
+            recorderState,
             onCommandSend: this.onCommandSend,
             onCommandReceived: this.onCommandReceived,
             onDataReceived: this.onDataReceived,

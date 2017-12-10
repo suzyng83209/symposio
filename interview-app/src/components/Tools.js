@@ -102,7 +102,6 @@ class Tools extends React.Component {
         var sections = {
             'recording-tools': (
                 <div>
-                    <div>Recorder is {this.props.recorderState}</div>
                     {this.renderButtons()}
                     <IconButton icon="" onClick={() => this.props.sendCommand('send-audio')}>
                         Generate Audio

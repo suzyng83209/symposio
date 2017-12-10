@@ -1,8 +1,11 @@
 const router = require('express').Router();
 const Promise = require('bluebird');
+const auth = require('./auth');
 const uploadFile = require('./utils/S3Utils').uploadFile;
 const mergeAudio = require('./utils/ffmpegUtils').mergeAudio;
 const downloadB64Data = require('./utils/Utils').downloadB64Data;
+
+router.get('/sign_auth', auth.sign);
 
 router.post('/upload', (req, res, next) => {
     var { data } = req.body;

@@ -4,6 +4,7 @@ import { VideoContainer } from './Containers';
 import RoomControls from './RoomControls';
 import RTCController from '../controllers/RTCController';
 import { FlexWrapper } from './Misc';
+import VideoOverlay from './VideoOverlay';
 import Tools from './Tools';
 import Room from './Room';
 
@@ -12,7 +13,7 @@ class RoomValidator extends React.Component {
         super(props);
         this.state = {
             error: null,
-            loading: true
+            loading: true,
         };
     }
 
@@ -51,9 +52,10 @@ class RoomValidator extends React.Component {
             <div style={{ height: '100vh' }}>
                 <RoomControls isRoomOpened roomId={this.props.params.roomId} />
                 <Room>
-                    {({ recorderState, onCommandSend, onCommandReceived }) => (
+                    {({ countdown, recorderState, onCommandSend, onCommandReceived }) => (
                         <FlexWrapper horizontal>
                             <VideoContainer />
+                            <VideoOverlay recorderState={recorderState} countdown={countdown} />
                             <Tools
                                 recorderState={recorderState}
                                 receiveCommand={onCommandReceived}

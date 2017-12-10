@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "crypto": "^1.0.1",
+    "evaporate": "^2.1.4",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
     "moment": "^2.19.3",

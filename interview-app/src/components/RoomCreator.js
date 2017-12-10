@@ -6,13 +6,14 @@ import { FlexWrapper } from './Misc';
 import { VideoContainer } from './Containers';
 import Tools from './Tools';
 import Room from './Room';
+import VideoOverlay from './VideoOverlay';
 
 class RoomCreator extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
-            roomId: null
+            roomId: null,
         };
     }
 
@@ -29,7 +30,7 @@ class RoomCreator extends React.Component {
             return null;
         }
         const style = {
-            height: this.state.roomId ? '100vh' : ''
+            height: this.state.roomId ? '100vh' : '',
         };
         return (
             <div style={style}>
@@ -39,9 +40,16 @@ class RoomCreator extends React.Component {
                 />
                 {this.state.roomId && (
                     <Room>
-                        {({ recorderState, onCommandSend, onCommandReceived, onDataReceived }) => (
+                        {({
+                            countdown,
+                            recorderState,
+                            onCommandSend,
+                            onCommandReceived,
+                            onDataReceived,
+                        }) => (
                             <FlexWrapper horizontal id="media-parent">
                                 <VideoContainer />
+                                <VideoOverlay countdown={countdown} recorderState={recorderState} />
                                 <Tools
                                     isInterviewer
                                     sendCommand={onCommandSend}

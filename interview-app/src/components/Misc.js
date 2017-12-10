@@ -20,6 +20,8 @@ const CountdownWrapper = styled.div`
     width: 100%;
     display: flex;
     justify-content: center;
+    color: white;
+    font-size: 2em;
 `;
 
 export const Countdown = ({ count }) => <CountdownWrapper>{count}</CountdownWrapper>;

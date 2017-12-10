@@ -2,7 +2,7 @@ import AWSService from '../services/AWSService';
 
 const AWS_BUCKET = 'symposio-audio-assets';
 const AWS_REGION = 'us-east-1';
-const IDENTITY_POOL_ID = 'us-east-1:bea12fb5-6687-4857-a8c0-89e160843db1';
+const IDENTITY_POOL_ID = 'us-east-1:c7cb18e9-5e95-4d4a-a175-45160c7d5587';
 
 var AWSController = {
     _initialized: false,

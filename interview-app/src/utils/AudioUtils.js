@@ -9,26 +9,15 @@ import AWSController from '../controllers/AWSController';
  * @param {array} recordings - base64 encoded dataUris
  */
 export const generateSoloAudioAssets = (recordings = []) => {
-    // recordings.reduce((audioContainerEl, base64, i) => {
-    //     const blob = b64ToBlob(base64);
-    //     const file = new File([blob], `local-${i}-${Date.now()}.webm`);
-    //     audioContainerEl.appendChild(createAudioEl(file));
-    //     return audioContainerEl;
-    // }, document.getElementById('local_assets'));
-    // return;
-    // return axios.post(`api/upload`, { data: recordings }).then(({ data }) => {
-    //     console.log(data);
-    //     debugger;
-    //     var container = document.getElementById('local_assets');
-    //     (data.s3Keys || []).map(({ Location }) => {
-    //         const audioEl = createAudioEl(Location);
-    //         container.appendChild(audioEl);
-    //     });
-    //     return;
-    // });
+    var audioContainerEl = document.getElementById('local_assets');
     AWSController.initialize()
         .then(() => Promise.map(recordings, file => AWSController.upload(file)))
-        .then(console.log);
+        .then(res => {
+            res.map(s3 => {
+                audioContainerEl.appendChild(createAudioEl(s3.Location));
+            });
+            return;
+        });
 };
 
 export const generateAudioAssets = (recordings = []) => {
@@ -38,7 +27,6 @@ export const generateAudioAssets = (recordings = []) => {
 };
 
 export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {
-    debugger;
     if (/^data:[a-z]+\/[a-z]+;base64,/.test(b64Data)) {
         b64Data = b64Data.replace(/^data:[a-z]+\/[a-z]+;base64,/, ''); // or b64Data.splice(b64Data.lastIndexOf(',') + 1)
     }
