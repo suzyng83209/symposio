@@ -1,6 +1,9 @@
 const fs = require('fs');
 
 function downloadFile(file) {
+    if (!file) {
+        return Promise.resolve();
+    }
     if (!fs.existsSync(process.env.UPLOAD_FOLDER)) {
         fs.mkdirSync(process.env.UPLOAD_FOLDER);
     }

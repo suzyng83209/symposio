@@ -39,7 +39,7 @@ class RoomCreator extends React.Component {
                     isRoomOpened={Boolean(this.state.roomId)}
                 />
                 {this.state.roomId && (
-                    <Room>
+                    <Room isInterviewer>
                         {({
                             countdown,
                             recorderState,

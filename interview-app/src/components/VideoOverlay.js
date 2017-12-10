@@ -22,7 +22,9 @@ const State = styled.span`
 `;
 
 const VideoOverlay = ({ recorderState, countdown }) => {
-    if (countdown) return <Countdown count={countdown} />;
+    if (countdown) {
+        return <Countdown count={countdown} />;
+    }
     return (
         <Overlay horizontal>
             Recorder is&nbsp;<State color="red">{recorderState}</State>

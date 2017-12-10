@@ -1,10 +1,17 @@
 import axios from 'axios';
 import React from 'react';
+import Promise from 'bluebird';
 import PropTypes from 'prop-types';
 import RecordRTC from 'recordrtc';
 import { Countdown } from './Misc';
 import RTCController from '../controllers/RTCController';
-import { generateSoloAudioAssets, generateAudioAssets, b64ToBlob } from '../utils/AudioUtils';
+import AWSController from '../controllers/AWSController';
+import {
+    generateSoloAudioAssets,
+    generateAudioAssets,
+    createAudioEl,
+    b64ToBlob,
+} from '../utils/AudioUtils';
 
 class Room extends React.Component {
     constructor(props) {
@@ -15,6 +22,7 @@ class Room extends React.Component {
             recorder: null,
             recorderState: 'inactive',
             recordings: [],
+            s3Keys: [],
         };
     }
 
@@ -98,13 +106,10 @@ class Room extends React.Component {
 
     onCommandSend = command => {
         RTCController.sendCommand(command);
-        if (command !== 'send-audio') {
+        if (command !== 'upload-audio') {
             return this.handleRecorderCommand(command);
         }
         if (RTCController.isRoomEmpty()) {
-            // const audioFiles = this.state.recordings.map(
-            //     recording => new File([b64ToBlob(recording)], `test-${Date.now()}.webm`),
-            // );
             return generateSoloAudioAssets(this.state.recordings);
         }
     };
@@ -117,12 +122,25 @@ class Room extends React.Component {
         if (data.length && data.length !== this.state.recordings.length) {
             throw new Error('Uneven number of recordings between local and remote streams');
         }
-        var dataUris = this.state.recordings.map((l, i) => [l, data[i]]); // zipping the two arrays
-        return generateAudioAssets(dataUris).then(console.log);
+        return generateAudioAssets(this.state.s3Keys.concat(data)).then(res => {
+            res.map(s3Key => {
+                var fileType = s3Key.Key.replace(/\/[a-zA-Z0-9|-]+\.webm$/, '');
+                document.getElementById(fileType).appendChild(createAudioEl(s3Key));
+            });
+        });
     };
 
-    'send-audio' = () => {
-        RTCController.sendData(this.state.recordings);
+    'upload-audio' = () => {
+        AWSController.initialize().then(() => {
+            Promise.map(this.state.recordings, recording => AWSController.upload(recording)).then(
+                s3Keys => {
+                    if (!this.props.isInterviewer) {
+                        RTCController.sendData(s3Keys);
+                    }
+                    this.setState({ s3Keys });
+                },
+            );
+        });
     };
 
     render() {
@@ -142,4 +160,5 @@ export default Room;
 
 Room.propTypes = {
     children: PropTypes.func.isRequired,
+    isInterviewer: PropTypes.bool,
 };

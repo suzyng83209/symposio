@@ -166,7 +166,7 @@ class Tools extends React.Component {
 
     render() {
         return (
-            <ToolsContainer open={this.state.open}>
+            <ToolsContainer id="tools" open={this.state.open}>
                 <Toolbar>{this.renderTabs()}</Toolbar>
                 <SectionWrapper>{this.renderSection()}</SectionWrapper>
             </ToolsContainer>
