@@ -54,9 +54,9 @@ class Messenger extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            messages: [],
+            messages: props.previousMessages || [],
             currentMessage: '',
-            loading: true
+            loading: true,
         };
     }
 
@@ -65,6 +65,10 @@ class Messenger extends React.Component {
             RTCController.handleMessage(this.onMessage);
             this.setState({ loading: false });
         });
+    }
+
+    componentWillUnmount() {
+        this.props.sustainMessages(this.state.messages);
     }
 
     handleInputChange = e => {
@@ -109,7 +113,7 @@ class Messenger extends React.Component {
         if (e.key !== 'Enter') return;
         if (e.shiftKey)
             return this.setState(prevState => ({
-                currentMessage: prevState.currentMessage.concat('\n')
+                currentMessage: prevState.currentMessage.concat('\n'),
             }));
         return this.sendMessage();
     };
@@ -143,5 +147,5 @@ class Messenger extends React.Component {
 export default Messenger;
 
 Messenger.propType = {
-    onCommand: PropTypes.func
+    onCommand: PropTypes.func,
 };

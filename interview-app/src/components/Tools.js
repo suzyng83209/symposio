@@ -61,7 +61,7 @@ class Toolbar extends React.Component {
         if (!this.portal) return null;
         return ReactDOM.createPortal(
             <ToolbarWrapper>{this.props.children}</ToolbarWrapper>,
-            this.portal
+            this.portal,
         );
     }
 }
@@ -71,7 +71,8 @@ class Tools extends React.Component {
         super(props);
         this.state = {
             open: true,
-            current: 'messages'
+            current: 'messages',
+            previousMessages: [],
         };
     }
 
@@ -98,12 +99,17 @@ class Tools extends React.Component {
         ));
     }
 
+    sustainMessages = previousMessages => {
+        this.setState({ previousMessages });
+    };
+
     renderSection() {
+        const { sendCommand, receiveCommand, receiveData } = this.props;
         var sections = {
             'recording-tools': (
                 <div>
                     {this.renderButtons()}
-                    <IconButton icon="" onClick={() => this.props.sendCommand('send-audio')}>
+                    <IconButton icon="" onClick={() => sendCommand('send-audio')}>
                         Generate Audio
                     </IconButton>
                     <GridWrapper rows={1} cols={3}>
@@ -114,10 +120,14 @@ class Tools extends React.Component {
                 </div>
             ),
             messages: (
-                <Messenger onCommand={this.props.receiveCommand} onData={this.props.receiveData} />
-            )
+                <Messenger
+                    previousMessages={this.state.previousMessages}
+                    sustainMessages={this.sustainMessages}
+                    onCommand={receiveCommand}
+                    onData={receiveData}
+                />
+            ),
         };
-
         return sections[this.state.current || 'messages'];
     }
 
@@ -171,12 +181,12 @@ Tools.propTypes = {
     receiveCommand: PropTypes.func,
     sendCommand: PropTypes.func,
     isInterviewer: PropTypes.bool,
-    recorderState: PropTypes.string
+    recorderState: PropTypes.string,
 };
 
 Tools.defaultProps = {
     receiveData: () => {},
     receiveCommand: () => {},
     sendCommand: () => {},
-    recorderState: 'inactive'
+    recorderState: 'inactive',
 };
