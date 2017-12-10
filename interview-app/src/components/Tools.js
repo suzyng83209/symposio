@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Icon, IconButton } from './Buttons';
 import { ToolsContainer, MessageContainer } from './Containers';
 import Messenger from './Messenger';
-import { GridWrapper } from './Misc';
+import { GridWrapper, Grid } from './Misc';
 
 const ToolbarWrapper = styled.div`
     position: absolute;
@@ -109,13 +109,14 @@ class Tools extends React.Component {
             'recording-tools': (
                 <div>
                     {this.renderButtons()}
-                    <IconButton icon="" onClick={() => sendCommand('send-audio')}>
+                    <IconButton icon="" onClick={() => sendCommand('upload-audio')}>
                         Generate Audio
                     </IconButton>
-                    <GridWrapper rows={1} cols={3}>
-                        <div id="local_assets" style={{ gridRow: '1', gridColumn: '1' }} />
-                        <div id="remote_assets" style={{ gridRow: '1', gridColumn: '2' }} />
-                        <div id="combined_assets" style={{ gridRow: '1', gridColumn: '3' }} />
+                    <GridWrapper rows={1} cols={4}>
+                        <Grid id="local_assets" />
+                        <Grid id="remote_assets" col={2} />
+                        <Grid id="combined_assets" col={3} />
+                        <Grid id="transcripts" col={4} />
                     </GridWrapper>
                 </div>
             ),

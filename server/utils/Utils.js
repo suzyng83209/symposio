@@ -1,5 +1,17 @@
 const fs = require('fs');
 
+function writeTranscript(transcript = '', filename) {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(process.env.UPLOAD_FOLDER + filename, transcript, function(err) {
+            return err ? reject(err) : resolve(process.env.UPLOAD_FOLDER + filename);
+        });
+    });
+}
+
+function fileAlreadyExists(fileName) {
+    return fs.statSync(process.env.UPLOAD_FOLDER + fileName);
+}
+
 function downloadFile(file) {
     if (!file) {
         return Promise.resolve();
@@ -96,9 +108,8 @@ function b64ToBlob(b64Data, fileName, contentType = '', sliceSize = 512) {
     return blob;
 }
 
-// replace(/^data:[a-z]+\/[a-z]+;base64,/, "")
-
 module.exports = {
+    writeTranscript,
     downloadFile,
     downloadB64Data,
     cleanUp,

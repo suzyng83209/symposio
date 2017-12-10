@@ -43,3 +43,8 @@ export const GridWrapper = styled.div`
     grid-template-columns: repeat(${props => props.cols || 3}, 1fr);
     grid-gap: ${props => props.gutter || '0'}px;
 `;
+
+export const Grid = styled.div`
+    grid-row: ${props => props.row || '1'};
+    grid-column: ${props => props.col || '1'};
+`;

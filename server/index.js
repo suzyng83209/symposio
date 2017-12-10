@@ -57,19 +57,25 @@ router.get('/transcript', (req, res, next) => {
     if (!localKey && !remoteKey) {
         throw new Error('no files specified for transcript generation.');
     }
+    if (!remoteKey) {
+        const fileName = localKey.replace(/^[a-zA-Z]+\//, '').replace(/.webm$/, '.txt');
+        return S3Utils.fetchFile(localKey)
+            .then(file => WatsonUtils.generateTranscript(file, { timestamps: false }))
+            .then(WatsonUtils.massageTranscriptSolo)
+            .then(data => Utils.writeTranscript(data, fileName))
+            .then(filePath => S3Utils.uploadFile({ filePath, key: `transcripts/${fileName}` }))
+            .then(s3Key => res.status(200).send(s3Key))
+            .catch(next);
+    }
     return Promise.all([
         S3Utils.fetchFile(localKey)
             .then(WatsonUtils.generateTranscript)
             .then(WatsonUtils.massageTranscript),
         S3Utils.fetchFile(remoteKey)
             .then(WatsonUtils.generateTranscript)
-            .then(WatsonUtils.massageTranscript)
-            .catch(),
+            .then(WatsonUtils.massageTranscript),
     ])
         .then(([localTranscript, remoteTranscript]) => {
-            if (!remoteTranscript) {
-                return localTranscript;
-            }
             // merge the two somehow.
         })
         .then(console.log);

@@ -23,13 +23,14 @@ module.exports = {
         });
     },
 
-    fetchFile: filepath => {
-        console.log('fetching from ', filePath);
+    fetchFile: filePath => {
+        console.log('fetching from', filePath);
         const params = { ...DEFAULT_PARAMS, Key: filePath };
         return new Promise((resolve, reject) => {
             new AWS.S3().getObject(params, (err, data) => {
                 return err ? reject(err) : resolve(data);
             });
         });
+        r;
     },
 };

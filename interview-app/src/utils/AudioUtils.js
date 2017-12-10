@@ -2,6 +2,27 @@ import axios from 'axios';
 import Promise from 'bluebird';
 import AWSController from '../controllers/AWSController';
 
+const generateTranscriptButton = s3Key => {
+    var getTranscriptButton = document.createElement('button');
+    const id = `transcript-${s3Key}`;
+    getTranscriptButton.id = id;
+    getTranscriptButton.innerHTML = 'Transcript';
+    getTranscriptButton.onclick = () =>
+        axios.get(`/api/transcript?localKey=${s3Key}`).then(res => {
+            const previousButton = document.getElementById(id);
+            const transcriptContainer = document.getElementById('transcripts');
+            const newButton = document.createElement('a');
+            newButton.innerHTML = 'Transcript';
+            newButton.href = res.Location;
+            newButton.download = true;
+            transcriptContainer.appendChild(newButton);
+            if (previousButton) {
+                transcriptContainer.removeChild(previousButton);
+            }
+        });
+    return getTranscriptButton;
+};
+
 /** For single User
  * Iterates through the recordings, generating files
  * and <audio /> tags while appending them to
@@ -10,11 +31,13 @@ import AWSController from '../controllers/AWSController';
  */
 export const generateSoloAudioAssets = (recordings = []) => {
     var audioContainerEl = document.getElementById('local_assets');
+    var transcriptContainerEl = document.getElementById('transcripts');
     AWSController.initialize()
         .then(() => Promise.map(recordings, file => AWSController.upload(file)))
         .then(res => {
             res.map(s3 => {
                 audioContainerEl.appendChild(createAudioEl(s3.Location));
+                transcriptContainerEl.appendChild(generateTranscriptButton(s3.Key));
             });
             return;
         });

@@ -2,7 +2,7 @@ var SpeechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
 var stream = require('stream');
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; //100 Mb
-const codes = {
+const CODES = {
     1000: { error: false, message: 'The connection closed normally.' },
     1002: {
         error: true,
@@ -16,8 +16,18 @@ const codes = {
             'The service is terminating the connection because it encountered an unexpected condition that prevents it from fulfilling the request.',
     },
 };
+const PARAMS = {
+    model: 'en-US_BroadbandModel',
+    content_type: 'audio/webm',
+    interim_results: false,
+    word_confidence: false,
+    profanity_filter: false,
+    smart_formatting: true,
+    max_alternatives: 0,
+    timestamps: true,
+};
 
-const generateTranscript = function(file) {
+const generateTranscript = function(file, params) {
     return new Promise((resolve, reject) => {
         try {
             var speechToText = new SpeechToTextV1({
@@ -28,17 +38,8 @@ const generateTranscript = function(file) {
             console.log('speechToText config err: ', err);
             return reject(err);
         }
-        var params = {
-            model: 'en-US_BroadbandModel',
-            content_type: 'audio/webm',
-            interim_results: false,
-            word_confidence: false,
-            profanity_filter: false,
-            smart_formatting: true,
-            max_alternatives: 0,
-            timestamps: true,
-        };
-        var recognizeStream = speechToText.createRecognizeStream(params);
+
+        var recognizeStream = speechToText.createRecognizeStream({ ...PARAMS, ...params });
 
         if (file.ContentLength > MAX_FILE_SIZE) {
             reject('file size greater than 100 Mb: ' + file.ContentLength / 1024 / 1024);
@@ -48,7 +49,7 @@ const generateTranscript = function(file) {
             var bufferStream = new stream.PassThrough();
             bufferStream.end(file.Body);
             bufferStream.pipe(recognizeStream);
-            console.log('**Creating transcript');
+            console.log('[TRANSCRIPT] - Creating');
         } catch (e) {
             console.log('stream creation err: ', e);
             return reject(e.message);
@@ -71,24 +72,31 @@ const generateTranscript = function(file) {
     });
 };
 
+const massageTranscriptSolo = results => {
+    console.log('[TRANSCRIPT] - Massaging Solo');
+    return results.reduce(
+        (transcript, part) => transcript.concat(part.alternatives[0].transcript),
+        '',
+    );
+};
+
 const massageTranscript = results => {
-    console.log('**massaging transcript', results);
-    var massagedTranscript = results.reduce((data, part) => {
-        var transcriptPart = {};
-        transcriptPart.confidence = part.alternatives[0].confidence;
-        transcriptPart.timeStamps = part.alternatives[0].timestamps.map(data => data);
-        transcriptPart.preview = part.alternatives[0].transcript;
-        transcriptPart.wordConfidence = part.alternatives[0].word_confidence;
-        data.push(transcriptPart);
-        return data;
-    }, []);
+    console.log('[TRANSCRIPT] - Massaging');
+    var massagedTranscript = results.map(({ alternatives }) => {
+        const { confidence, timestamps, transcript, word_confidence } = alternatives[0];
+        return {
+            confidence,
+            transcript,
+            timeStamps: timestamps,
+            wordConfidence: word_confidence,
+        };
+    });
     return JSON.stringify(massagedTranscript);
 };
 
-function handleWatsonClose(code) {
-    return codes[code]
-        ? codes[code]
+const handleWatsonClose = code =>
+    CODES[code]
+        ? CODES[code]
         : { error: true, message: 'unhandled watson code, check watson api version' };
-}
 
-module.exports = { generateTranscript, massageTranscript };
+module.exports = { generateTranscript, massageTranscriptSolo, massageTranscript };
