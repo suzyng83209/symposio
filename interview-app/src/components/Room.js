@@ -6,12 +6,10 @@ import RecordRTC from 'recordrtc';
 import { Countdown } from './Misc';
 import RTCController from '../controllers/RTCController';
 import AWSController from '../controllers/AWSController';
-import {
-    generateSoloAudioAssets,
-    generateAudioAssets,
-    createAudioEl,
-    b64ToBlob,
-} from '../utils/AudioUtils';
+import { generateSoloAudioAssets, generateAudioAssets } from '../utils/AudioUtils';
+
+const COUNTDOWN = 3;
+const COUNTDOWN_TIME = 1000;
 
 class Room extends React.Component {
     constructor(props) {
@@ -59,13 +57,13 @@ class Room extends React.Component {
     };
 
     handleCountdownStart = () => {
-        var countdown = 3;
+        var countdown = COUNTDOWN;
         const countdownTimer = setInterval(() => {
             this.setState({ countdown: countdown--, recorderState: '' });
             if (countdown < 0) {
                 clearInterval(countdownTimer);
             }
-        }, 1000);
+        }, COUNTDOWN_TIME);
 
         setTimeout(() => {
             if (!this.state.recorder) return;
@@ -73,7 +71,7 @@ class Room extends React.Component {
                 audio: true,
                 video: false,
             });
-        }, 4000);
+        }, (COUNTDOWN + 1) * COUNTDOWN_TIME);
     };
 
     handleRecorderCommand = command => {
