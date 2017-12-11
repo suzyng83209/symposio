@@ -74,24 +74,22 @@ const generateTranscript = function(file, params) {
 
 const massageTranscriptSolo = results => {
     console.log('[TRANSCRIPT] - Massaging Solo');
-    return results.reduce(
-        (transcript, part) => transcript.concat(part.alternatives[0].transcript),
-        '',
-    );
+    return results.reduce((transcript, part) => {
+        return transcript.concat(part.alternatives[0].transcript).concat('\n');
+    }, '');
 };
 
-const massageTranscript = results => {
+const massageTranscript = (results, options) => {
     console.log('[TRANSCRIPT] - Massaging');
-    var massagedTranscript = results.map(({ alternatives }) => {
-        const { confidence, timestamps, transcript, word_confidence } = alternatives[0];
+    return results.map(({ alternatives }) => {
+        const { timestamps = [], transcript } = alternatives[0];
         return {
-            confidence,
+            ...options,
             transcript,
-            timeStamps: timestamps,
-            wordConfidence: word_confidence,
+            startTime: timestamps[0][1],
+            endtime: timestamps[timestamps.length - 1][1],
         };
     });
-    return JSON.stringify(massagedTranscript);
 };
 
 const handleWatsonClose = code =>

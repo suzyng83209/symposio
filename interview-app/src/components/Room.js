@@ -105,13 +105,11 @@ class Room extends React.Component {
     };
 
     onCommandSend = command => {
-        RTCController.sendCommand(command);
-        if (command !== 'upload-audio') {
-            return this.handleRecorderCommand(command);
-        }
         if (RTCController.isRoomEmpty()) {
             return generateSoloAudioAssets(this.state.recordings);
         }
+        RTCController.sendCommand(command);
+        return this.handleRecorderCommand(command);
     };
 
     onDataReceived = e => {
@@ -122,12 +120,8 @@ class Room extends React.Component {
         if (data.length && data.length !== this.state.recordings.length) {
             throw new Error('Uneven number of recordings between local and remote streams');
         }
-        return generateAudioAssets(this.state.s3Keys.concat(data)).then(res => {
-            res.map(s3Key => {
-                var fileType = s3Key.Key.replace(/\/[a-zA-Z0-9|-]+\.webm$/, '');
-                document.getElementById(`${fileType}_assets`).appendChild(createAudioEl(s3Key));
-            });
-        });
+
+        return generateAudioAssets(data.map((remoteKey, i) => [this.state.s3Keys[i], remoteKey]));
     };
 
     'upload-audio' = () => {

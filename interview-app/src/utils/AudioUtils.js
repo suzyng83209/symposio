@@ -2,13 +2,13 @@ import axios from 'axios';
 import Promise from 'bluebird';
 import AWSController from '../controllers/AWSController';
 
-const generateTranscriptButton = s3Key => {
+const generateTranscriptButton = (localKey = '', remoteKey = '') => {
     var getTranscriptButton = document.createElement('button');
-    const id = `transcript-${s3Key}`;
+    const id = `transcript-${localKey}-${remoteKey}`;
     getTranscriptButton.id = id;
     getTranscriptButton.innerHTML = 'Transcript';
     getTranscriptButton.onclick = () =>
-        axios.get(`/api/transcript?localKey=${s3Key}`).then(res => {
+        axios.get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`).then(res => {
             const previousButton = document.getElementById(id);
             const transcriptContainer = document.getElementById('transcripts');
             const newButton = document.createElement('a');
@@ -44,7 +44,19 @@ export const generateSoloAudioAssets = (recordings = []) => {
 };
 
 export const generateAudioAssets = (recordings = []) => {
-    return axios.post(`api/merge`, { data: recordings });
+    const getContainer = id => document.getElementById(id);
+    return axios.post(`api/merge`, { data: recordings }).then(({ s3Keys }) => {
+        recordings.map(([s3Local, s3Remote]) => {
+            getContainer('local_assets').appendChild(createAudioEl(s3Local.Location));
+            getContainer('remote_assets').appendChild(createAudioEl(s3Remote.Location));
+            getContainer('transcripts').appendChild(
+                generateTranscriptButton(s3Local.Key, s3Remote.Key),
+            );
+        });
+        s3Keys.map(key => {
+            getContainer('combined_assets').appendChild(createAudioEl(key.Location));
+        });
+    });
 };
 
 export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {

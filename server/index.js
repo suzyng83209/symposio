@@ -34,15 +34,12 @@ router.post('/merge', (req, res, next) => {
         throw new Error('no data');
     }
 
-    var s3Keys = [];
-
-    Promise.map(data, ([local, remote]) => {
+    Promise.map(data, ([localKey, remoteKey]) => {
         if (!local || !remote) {
-            throw new Error('missing parameter: base64 data');
+            throw new Error('missing parameter: file');
         }
         return Promise.all([Utils.downloadFile(local), Utils.downloadFile(remote)])
             .then(([localPath, remotePath]) => {
-                console.log('***PATHS***: ', localPath, remotePath);
                 const name = localPath.slice(localPath.lastIndexOf('/'));
                 return Promise.all([mergeAudio(localPath, remotePath), name]);
             })
@@ -57,28 +54,39 @@ router.get('/transcript', (req, res, next) => {
     if (!localKey && !remoteKey) {
         throw new Error('no files specified for transcript generation.');
     }
+
+    const fileName = localKey.replace(/^[a-zA-Z]+\//, '').replace(/.webm$/, '.txt');
+    var promise;
+
     if (!remoteKey) {
-        const fileName = localKey.replace(/^[a-zA-Z]+\//, '').replace(/.webm$/, '.txt');
-        return S3Utils.fetchFile(localKey)
+        promise = S3Utils.fetchFile(localKey)
             .then(file => WatsonUtils.generateTranscript(file, { timestamps: false }))
             .then(WatsonUtils.massageTranscriptSolo)
             .then(data => Utils.writeTranscript(data, fileName))
-            .then(filePath => S3Utils.uploadFile({ filePath, key: `transcripts/${fileName}` }))
-            .then(s3Key => res.status(200).send(s3Key))
-            .catch(next);
+            .then(filePath => S3Utils.uploadFile({ filePath, key: `transcripts/${fileName}` }));
+    } else {
+        promise = Promise.all([
+            S3Utils.fetchFile(localKey)
+                .then(WatsonUtils.generateTranscript)
+                .then(transcript => WatsonUtils.massageTranscript(transcript, { type: 'LOCAL' })),
+            S3Utils.fetchFile(remoteKey)
+                .then(WatsonUtils.generateTranscript)
+                .then(transcript => WatsonUtils.massageTranscript(transcript, { type: 'REMOTE' })),
+        ])
+            .then(([localTranscript, remoteTranscript]) => {
+                const combinedTranscript = localTranscript
+                    .concat(remoteTranscript)
+                    .sort((a, b) => a.startTime < b.startTime)
+                    .reduce((transcript, part) => {
+                        const line = `[${part.type}]: ${part.transcript}\n`;
+                        return transcript.concat(line);
+                    }, '');
+                return Utils.writeTranscript(combinedTranscript, fileName);
+            })
+            .then(filePath => S3Utils.uploadFile({ filePath, key: `transcripts/${fileName}` }));
     }
-    return Promise.all([
-        S3Utils.fetchFile(localKey)
-            .then(WatsonUtils.generateTranscript)
-            .then(WatsonUtils.massageTranscript),
-        S3Utils.fetchFile(remoteKey)
-            .then(WatsonUtils.generateTranscript)
-            .then(WatsonUtils.massageTranscript),
-    ])
-        .then(([localTranscript, remoteTranscript]) => {
-            // merge the two somehow.
-        })
-        .then(console.log);
+
+    promise.then(s3Key => res.status(200).send(s3Key)).catch(next);
 });
 
 module.exports = router;
