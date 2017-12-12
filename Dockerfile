@@ -13,8 +13,8 @@ COPY . /app
 
 WORKDIR /app
 
-RUN if [ -f '/interview-app/.env' ]; then sed "s#localhost:3000#${BASE_URL}#g" /interview-app/.env; fi
+RUN if [ -f '/interview-app/.env' ]; then sed -i "s#localhost:3000#${BASE_URL}#g" ./interview-app/.env; fi
 RUN npm install && \
     npm run build-app
 
-CMD [ "npm", "start" ]
+CMD [ "bash" ]

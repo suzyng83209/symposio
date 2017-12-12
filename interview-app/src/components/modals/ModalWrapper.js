@@ -42,7 +42,7 @@ const Overlay = styled.div`
 const Modal = styled.div`
     animation: ${fadeSlide} 300ms ease;
     width: ${props => props.width || '50%'};
-    height: ${props => props.height || '75%'};
+    height: ${props => props.height || '50%'};
     background: white;
     max-width: 600px;
     min-height: 360px;
