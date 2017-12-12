@@ -13,8 +13,8 @@ COPY . /app
 
 WORKDIR /app
 
-RUN if [ -f '/interview-app/.env' ]; then sed -i "s#localhost:3000#${BASE_URL}#g" ./interview-app/.env; fi
 RUN npm install && \
-    npm run build-app
+    npm run build-app && \
+    chmod +x docker/start.sh
 
-CMD [ "bash" ]
+CMD [ "sh", "docker/start.sh" ]
