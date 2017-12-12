@@ -23,12 +23,14 @@ const createLabel = text => {
     label.innerHTML = text;
     label.style = [
         `background: ${COLOUR[text]}`,
+        'grid-column: 1',
         'color: white',
-        'dispay: flex',
         'padding: 4px',
+        'display: flex',
         'min-width: 48px',
         'border-radius: 4px',
         'align-items: center',
+        'box-sizing: border-box',
         'justify-content: center',
     ].join(';');
     return label;
@@ -40,28 +42,31 @@ const createAudioEl = src => {
     source.src = src;
 
     var audio = document.createElement('audio');
+    audio.style = 'grid-column: 2; width: 100%;';
     audio.controls = 'controls';
     audio.preload = 'metadata';
     audio.volume = 1;
-    audio.style = 'width: auto;';
     audio.appendChild(source);
     return audio;
 };
 
 const generateTranscriptButton = (localKey = '', remoteKey = '') => {
-    var getTranscriptButton = document.createElement('button');
+    var transcriptButton = document.createElement('button');
     const id = `transcript-${localKey}-${remoteKey}`;
-    getTranscriptButton.id = id;
-    getTranscriptButton.innerHTML = 'Transcript';
-    getTranscriptButton.onclick = () =>
+    transcriptButton.style = 'grid-column: 3;';
+    transcriptButton.innerHTML = 'Transcript';
+    transcriptButton.id = id;
+    transcriptButton.onclick = () => {
+        transcriptButton.innerHTML = '...';
         axios.get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`).then(res => {
-            const previousButton = document.getElementById(id);
-            const transcriptContainer = document.getElementById('transcripts');
-            const newButton = document.createElement('a');
-            newButton.href = res.Location;
-            newButton.click();
+            transcriptButton.innerHTML = 'Transcript';
+            const download = document.createElement('a');
+            download.href = res.Location;
+            download.download = true;
+            download.click();
         });
-    return getTranscriptButton;
+    };
+    return transcriptButton;
 };
 
 /** For single User
@@ -80,7 +85,9 @@ export const generateSoloAudioAssets = (recordings = []) => {
                 containerEl.removeChild(containerEl.firstChild);
             }
             res.map(s3 => {
-                containerEl.appendChild(createAsset(s3, 'local'));
+                containerEl.appendChild(createLabel('local'));
+                containerEl.appendChild(createAudioEl(s3.Location));
+                containerEl.appendChild(generateTranscriptButton(s3.Key));
             });
             return;
         });

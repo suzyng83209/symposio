@@ -59,7 +59,7 @@ class Room extends React.Component {
     handleCountdownStart = () => {
         var countdown = COUNTDOWN;
         const countdownTimer = setInterval(() => {
-            this.setState({ countdown: countdown--, recorderState: '' });
+            this.setState({ countdown: countdown-- });
             if (countdown < 0) {
                 clearInterval(countdownTimer);
             }

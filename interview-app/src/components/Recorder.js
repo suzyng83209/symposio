@@ -7,6 +7,7 @@ import { GridWrapper } from './styled-components/Misc';
 const AutoGrid = GridWrapper.extend`
     grid-auto-rows: 32px;
     grid-template-rows: none;
+    grid-template-columns: 48px 1fr 72px;
 `;
 
 class Recorder extends React.Component {
@@ -49,11 +50,14 @@ class Recorder extends React.Component {
     }
 
     render() {
+        const style = {
+            display: this.props.active ? 'initial' : 'none',
+        };
         return (
-            <div>
+            <div style={style}>
                 <h2>Recording Tools</h2>
                 {this.renderButtons()}
-                <AutoGrid cols={1} id="assets" />
+                <AutoGrid gutter={4} id="assets" />
                 <IconButton icon="" onClick={() => this.props.sendCommand('upload-audio')}>
                     Generate Audio
                 </IconButton>

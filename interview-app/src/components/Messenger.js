@@ -54,9 +54,9 @@ class Messenger extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            messages: props.previousMessages || [],
             currentMessage: '',
             loading: true,
+            messages: [],
         };
     }
 
@@ -65,10 +65,6 @@ class Messenger extends React.Component {
             RTCController.handleMessage(this.onMessage);
             this.setState({ loading: false });
         });
-    }
-
-    componentWillUnmount() {
-        this.props.sustainMessages(this.state.messages);
     }
 
     handleInputChange = e => {
@@ -119,6 +115,7 @@ class Messenger extends React.Component {
     };
 
     render() {
+        if (!this.props.active) return null;
         const sendIcon = <Icon icon="caret-right" onClick={this.sendMessage} />;
         return (
             <GridWrapper rows={5} cols={1} gutter={16}>
