@@ -66,3 +66,9 @@ TODO
 
 ### Share
 TODO
+
+# Hosting
+Symposio is hosted in a secure environment.
+#### Docker: download and install ffmpeg. Provide localdisk to save tmp files
+#### Amazon EC2 Linux AMI: pull docker image and run mapping port 80 to 9000 (internal app port)
+#### Cloudflare: DNS, Caching, and SSL services.
