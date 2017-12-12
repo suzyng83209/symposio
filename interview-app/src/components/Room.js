@@ -129,7 +129,7 @@ class Room extends React.Component {
                     if (!this.props.isInterviewer) {
                         RTCController.sendData(s3Keys);
                     }
-                    this.setState({ s3Keys });
+                    this.setState(prevState => ({ s3Keys: prevState.s3Keys.concat(s3Keys) }));
                 },
             );
         });

@@ -4,9 +4,7 @@ import { Text } from './styled-components/Texts';
 import { IconButton } from './styled-components/Buttons';
 import { GridWrapper } from './styled-components/Misc';
 
-const SubGrid = GridWrapper.extend`
-    grid-row: ${props => props.row || '1'};
-    grid-column: ${props => props.col || '1'};
+const AutoGrid = GridWrapper.extend`
     grid-auto-rows: 32px;
     grid-template-rows: none;
 `;
@@ -55,12 +53,7 @@ class Recorder extends React.Component {
             <div>
                 <h2>Recording Tools</h2>
                 {this.renderButtons()}
-                <GridWrapper rows={1} cols={4}>
-                    <SubGrid id="local_assets" cols={1} />
-                    <SubGrid id="remote_assets" col={2} cols={1} />
-                    <SubGrid id="combined_assets" col={3} cols={1} />
-                    <SubGrid id="transcripts" col={4} cols={1} />
-                </GridWrapper>
+                <AutoGrid cols={1} id="assets" />
                 <IconButton icon="" onClick={() => this.props.sendCommand('upload-audio')}>
                     Generate Audio
                 </IconButton>
