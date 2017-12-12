@@ -1,4 +1,5 @@
 const fs = require('fs');
+const request = require('request');
 
 function writeTranscript(transcript = '', filename) {
     return new Promise((resolve, reject) => {
@@ -12,18 +13,14 @@ function fileAlreadyExists(fileName) {
     return fs.statSync(process.env.UPLOAD_FOLDER + fileName);
 }
 
-function downloadFile(file) {
-    if (!file) {
-        return Promise.resolve();
-    }
+function downloadFile({ Location, Key }) {
     if (!fs.existsSync(process.env.UPLOAD_FOLDER)) {
         fs.mkdirSync(process.env.UPLOAD_FOLDER);
     }
-
-    var url = url.indexOf('http') === -1 ? 'http:' + url : url,
-        localFile = process.env.UPLOAD_FOLDER + file.name,
+    var url = Location.indexOf('http') === -1 ? 'http:' + Location : Location,
+        localFile = process.env.UPLOAD_FOLDER + Key.replace(/^[a-zA-Z0-9|-]+\//, ''),
         file = fs.createWriteStream(localFile),
-        rem = request({ url: url });
+        rem = request({ url });
 
     return new Promise((resolve, reject) => {
         rem.on('data', chunk => {

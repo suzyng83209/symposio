@@ -72,7 +72,6 @@ class Tools extends React.Component {
         this.state = {
             open: true,
             current: 'messages',
-            previousMessages: [],
         };
     }
 
@@ -99,31 +98,23 @@ class Tools extends React.Component {
         ));
     }
 
-    sustainMessages = previousMessages => {
-        this.setState({ previousMessages });
-    };
-
-    renderSection() {
-        const { sendCommand, recorderState, receiveCommand, receiveData } = this.props;
-        var sections = {
-        'recording-tools': <Recorder sendCommand={sendCommand} recorderState={recorderState} />,
-            messages: (
-                <Messenger
-                    previousMessages={this.state.previousMessages}
-                    sustainMessages={this.sustainMessages}
-                    onCommand={receiveCommand}
-                    onData={receiveData}
-                />
-            ),
-        };
-        return sections[this.state.current || 'messages'];
-    }
-
     render() {
+        const { sendCommand, recorderState, receiveCommand, receiveData } = this.props;
         return (
             <ToolsContainer id="tools" open={this.state.open}>
                 <Toolbar>{this.renderTabs()}</Toolbar>
-                <SectionWrapper>{this.renderSection()}</SectionWrapper>
+                <SectionWrapper>
+                    <Recorder
+                        sendCommand={sendCommand}
+                        recorderState={recorderState}
+                        active={this.state.current === 'recording-tools'}
+                    />
+                    <Messenger
+                        active={this.state.current === 'messages'}
+                        onCommand={receiveCommand}
+                        onData={receiveData}
+                    />
+                </SectionWrapper>
             </ToolsContainer>
         );
     }

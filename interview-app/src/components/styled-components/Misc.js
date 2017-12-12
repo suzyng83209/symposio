@@ -4,11 +4,11 @@ import styled, { keyframes } from 'styled-components';
 const zoomFade = keyframes`
     from {
         opacity: 0;
-        font-size: 4em;
+        font-size: 5em;
     }
     to {
         opacity: 1;
-        font-size: 2em;
+        font-size: 3em;
     }
 `;
 
@@ -21,11 +21,11 @@ const CountdownWrapper = styled.div`
     display: flex;
     justify-content: center;
     color: white;
-    font-size: 4em;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 `;
 
 export const Countdown = ({ count, width }) => (
-    <CountdownWrapper width={width}>{count}</CountdownWrapper>
+    <CountdownWrapper>{count}</CountdownWrapper>
 );
 
 export const FlexWrapper = styled.div`

@@ -3,21 +3,72 @@ import Promise from 'bluebird';
 import FileSaver from 'file-saver';
 import AWSController from '../controllers/AWSController';
 
+const COLOUR = {
+    local: 'red',
+    remote: 'green',
+    combined: 'yellow',
+};
+
+const createAsset = (s3, type) => {
+    const asset = document.createElement('div');
+    asset.appendChild(createLabel(type));
+    asset.appendChild(createAudioEl(s3.Location));
+    asset.appendChild(generateTranscriptButton(s3.Key));
+    asset.style = 'grid-column: 1; display: flex;';
+    return asset;
+};
+
+const createLabel = text => {
+    var label = document.createElement('div');
+    label.innerHTML = text;
+    label.style = [
+        `background: ${COLOUR[text]}`,
+        'grid-column: 1',
+        'color: white',
+        'padding: 4px',
+        'display: flex',
+        'min-width: 48px',
+        'border-radius: 4px',
+        'align-items: center',
+        'box-sizing: border-box',
+        'justify-content: center',
+    ].join(';');
+    return label;
+};
+
+const createAudioEl = src => {
+    var source = document.createElement('source');
+    source.type = 'audio/webm';
+    source.src = src;
+
+    var audio = document.createElement('audio');
+    audio.style = 'grid-column: 2; width: 100%;';
+    audio.controls = 'controls';
+    audio.preload = 'metadata';
+    audio.volume = 1;
+    audio.appendChild(source);
+    return audio;
+};
+
 const generateTranscriptButton = (localKey = '', remoteKey = '') => {
-    var getTranscriptButton = document.createElement('button');
+    var transcriptButton = document.createElement('button');
     const id = `transcript-${localKey}-${remoteKey}`;
-    getTranscriptButton.id = id;
-    getTranscriptButton.innerHTML = 'Transcript';
-    getTranscriptButton.style = 'grid-column: 1; grid-row: 1;';
-    getTranscriptButton.onclick = () =>
-        axios.get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`).then(res => {
-            const previousButton = document.getElementById(id);
-            const transcriptContainer = document.getElementById('transcripts');
-            const newButton = document.createElement('a');
-            newButton.href = res.Location;
-            newButton.click();
-        });
-    return getTranscriptButton;
+    transcriptButton.style = 'grid-column: 3;';
+    transcriptButton.innerHTML = 'Transcript';
+    transcriptButton.id = id;
+    transcriptButton.onclick = () => {
+        transcriptButton.innerHTML = '...';
+        axios
+            .get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`)
+            .then(({ Location, Key }) => {
+                transcriptButton.innerHTML = 'Transcript';
+                const download = document.createElement('a');
+                download.href = Location;
+                download.download = Key;
+                download.click();
+            });
+    };
+    return transcriptButton;
 };
 
 /** For single User
@@ -27,35 +78,42 @@ const generateTranscriptButton = (localKey = '', remoteKey = '') => {
  * @param {array} recordings - base64 encoded dataUris
  */
 export const generateSoloAudioAssets = (recordings = []) => {
-    var audioContainerEl = document.getElementById('local_assets');
-    var transcriptContainerEl = document.getElementById('transcripts');
+    var containerEl = document.getElementById('assets');
     AWSController.initialize()
         .then(() => Promise.map(recordings, file => AWSController.upload(file)))
         .then(res => {
             // completely replace previous children
-            while (audioContainerEl.firstChild) {
-                audioContainerEl.removeChild(audioContainerEl.firstChild);
+            while (containerEl.firstChild) {
+                containerEl.removeChild(containerEl.firstChild);
             }
             res.map(s3 => {
-                audioContainerEl.appendChild(createAudioEl(s3.Location));
-                transcriptContainerEl.appendChild(generateTranscriptButton(s3.Key));
+                containerEl.appendChild(createLabel('local'));
+                containerEl.appendChild(createAudioEl(s3.Location));
+                containerEl.appendChild(generateTranscriptButton(s3.Key));
             });
             return;
         });
 };
 
 export const generateAudioAssets = (recordings = []) => {
-    const getContainer = id => document.getElementById(id);
-    return axios.post(`api/merge`, { data: recordings }).then(({ s3Keys }) => {
-        recordings.map(([s3Local, s3Remote]) => {
-            getContainer('local_assets').appendChild(createAudioEl(s3Local.Location));
-            getContainer('remote_assets').appendChild(createAudioEl(s3Remote.Location));
-            getContainer('transcripts').appendChild(
-                generateTranscriptButton(s3Local.Key, s3Remote.Key),
-            );
-        });
-        s3Keys.map(key => {
-            getContainer('combined_assets').appendChild(createAudioEl(key.Location));
+    const container = document.getElementById('assets');
+    return axios.post(`api/merge`, { data: recordings }).then(({ data }) => {
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        recordings.map(([s3Local, s3Remote], i) => {
+            const combinedSource = ((data.s3Keys || {})[i] || {}).Location;
+            container.appendChild(createLabel('combined'));
+            container.appendChild(createAudioEl(combinedSource));
+            container.appendChild(generateTranscriptButton(s3Local.Key, s3Remote.Key));
+
+            container.appendChild(createLabel('local'));
+            container.appendChild(createAudioEl(s3Local.Location));
+            container.appendChild(generateTranscriptButton(s3Local.Key));
+
+            container.appendChild(createLabel('remote'));
+            container.appendChild(createAudioEl(s3Remote.Location));
+            container.appendChild(generateTranscriptButton(s3Remote.Key));
         });
     });
 };
@@ -83,18 +141,4 @@ export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {
 
     var blob = new Blob(byteArrays, { type: contentType });
     return blob;
-};
-
-export const createAudioEl = src => {
-    var source = document.createElement('source');
-    source.type = 'audio/webm';
-    source.src = src;
-
-    var audio = document.createElement('audio');
-    audio.controls = 'controls';
-    audio.preload = 'metadata';
-    audio.volume = 1;
-    audio.style = 'width: 100%; grid-row: 1; grid-column: 1;';
-    audio.appendChild(source);
-    return audio;
 };
