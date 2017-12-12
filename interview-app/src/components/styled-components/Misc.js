@@ -49,3 +49,15 @@ export const Grid = styled.div`
     grid-row: ${props => props.row || '1'};
     grid-column: ${props => props.col || '1'};
 `;
+
+const ContentWrapper = styled.div`
+    width: 100%;
+    text-align: left;
+`;
+
+export const withLabel = label => component => (
+    <ContentWrapper>
+        <label>{label}</label>
+        {component}
+    </ContentWrapper>
+);

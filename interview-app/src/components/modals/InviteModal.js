@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ModalWrapper from './ModalWrapper';
 import Icon from '../styled-components/Icons';
-import { FlexWrapper } from '../styled-components/Misc';
+import { FlexWrapper, withLabel } from '../styled-components/Misc';
 import { Input } from '../styled-components/Inputs';
 import { IconButton } from '../styled-components/Buttons';
 import { withRouter } from 'react-router';
@@ -20,7 +20,7 @@ class InviteModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: null,
+            email: '',
             copyText: 'Copy',
             copyIcon: 'clipboard',
             inviteLink: process.env.REACT_APP_FRONTEND_URL + '/room?roomId=' + props.roomId,
@@ -50,35 +50,39 @@ class InviteModal extends React.Component {
         return (
             <ModalWrapper {...this.props} title="Invite Your Guest" showOk={false} width={'480px'}>
                 <ModalBody>
-                    <FlexWrapper horizontal>
-                        <div style={{ width: '75%' }}>
-                            <Input
-                                placeholder="Email"
-                                value={this.state.email}
-                                onChange={this.handleInputChange}
-                            />
-                        </div>
-                        <div style={{ width: '25%' }}>
-                            <IconButton icon="envelope" onClick={this.inviteGuest}>
-                                Invite
-                            </IconButton>
-                        </div>
-                    </FlexWrapper>
-                    <FlexWrapper horizontal>
-                        <div style={{ width: '75%' }}>
-                            <Input
-                                readOnly
-                                value={inviteLink}
-                                onClick={this.copyLink}
-                                innerRef={r => (this.inviteLink = r)}
-                            />
-                        </div>
-                        <div style={{ width: '25%' }}>
-                            <IconButton icon={copyIcon} onClick={this.copyLink}>
-                                {copyText}
-                            </IconButton>
-                        </div>
-                    </FlexWrapper>
+                    {withLabel('Invite by email')(
+                        <FlexWrapper horizontal>
+                            <div style={{ width: '75%' }}>
+                                <Input
+                                    placeholder="Email"
+                                    value={this.state.email}
+                                    onChange={this.handleInputChange}
+                                />
+                            </div>
+                            <div style={{ width: '25%' }}>
+                                <IconButton icon="envelope" onClick={this.inviteGuest}>
+                                    Invite
+                                </IconButton>
+                            </div>
+                        </FlexWrapper>,
+                    )}
+                    {withLabel('Invite by link')(
+                        <FlexWrapper horizontal>
+                            <div style={{ width: '75%' }}>
+                                <Input
+                                    readOnly
+                                    value={inviteLink}
+                                    onClick={this.copyLink}
+                                    innerRef={r => (this.inviteLink = r)}
+                                />
+                            </div>
+                            <div style={{ width: '25%' }}>
+                                <IconButton icon={copyIcon} onClick={this.copyLink}>
+                                    {copyText}
+                                </IconButton>
+                            </div>
+                        </FlexWrapper>,
+                    )}
                 </ModalBody>
             </ModalWrapper>
         );

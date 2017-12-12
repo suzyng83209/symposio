@@ -3,10 +3,9 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ToolsContainer, MessageContainer } from './styled-components/Containers';
-import { GridWrapper, Grid } from './styled-components/Misc';
-import { IconButton } from './styled-components/Buttons';
 import Icon from './styled-components/Icons';
 import Messenger from './Messenger';
+import Recorder from './Recorder';
 
 const ToolbarWrapper = styled.div`
     position: absolute;
@@ -105,22 +104,9 @@ class Tools extends React.Component {
     };
 
     renderSection() {
-        const { sendCommand, receiveCommand, receiveData } = this.props;
+        const { sendCommand, recorderState, receiveCommand, receiveData } = this.props;
         var sections = {
-            'recording-tools': (
-                <div>
-                    {this.renderButtons()}
-                    <IconButton icon="" onClick={() => sendCommand('upload-audio')}>
-                        Generate Audio
-                    </IconButton>
-                    <GridWrapper rows={1} cols={4}>
-                        <Grid id="local_assets" />
-                        <Grid id="remote_assets" col={2} />
-                        <Grid id="combined_assets" col={3} />
-                        <Grid id="transcripts" col={4} />
-                    </GridWrapper>
-                </div>
-            ),
+        'recording-tools': <Recorder sendCommand={sendCommand} recorderState={recorderState} />,
             messages: (
                 <Messenger
                     previousMessages={this.state.previousMessages}
@@ -131,39 +117,6 @@ class Tools extends React.Component {
             ),
         };
         return sections[this.state.current || 'messages'];
-    }
-
-    renderButtons() {
-        var { recorderState, sendCommand } = this.props;
-        switch (recorderState) {
-            case 'paused':
-                return (
-                    <div>
-                        <IconButton icon="play" onClick={() => sendCommand('resume')} />
-                        <IconButton icon="stop" onClick={() => sendCommand('stop')}>
-                            Stop Recording
-                        </IconButton>
-                    </div>
-                );
-            case 'inactive':
-            case 'stopped':
-                return (
-                    <IconButton icon="microphone" onClick={() => sendCommand('start')}>
-                        Start Recording
-                    </IconButton>
-                );
-            case 'recording':
-                return (
-                    <div>
-                        <IconButton icon="pause" onClick={() => sendCommand('pause')} />
-                        <IconButton icon="stop" onClick={() => sendCommand('stop')}>
-                            Stop Recording
-                        </IconButton>
-                    </div>
-                );
-            default:
-                return;
-        }
     }
 
     render() {

@@ -103,7 +103,7 @@ class Room extends React.Component {
     };
 
     onCommandSend = command => {
-        if (RTCController.isRoomEmpty()) {
+        if (RTCController.isRoomEmpty() && command === 'upload-audio') {
             return generateSoloAudioAssets(this.state.recordings);
         }
         RTCController.sendCommand(command);

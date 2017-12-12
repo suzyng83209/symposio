@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Promise from 'bluebird';
+import FileSaver from 'file-saver';
 import AWSController from '../controllers/AWSController';
 
 const generateTranscriptButton = (localKey = '', remoteKey = '') => {
@@ -7,18 +8,14 @@ const generateTranscriptButton = (localKey = '', remoteKey = '') => {
     const id = `transcript-${localKey}-${remoteKey}`;
     getTranscriptButton.id = id;
     getTranscriptButton.innerHTML = 'Transcript';
+    getTranscriptButton.style = 'grid-column: 1; grid-row: 1;';
     getTranscriptButton.onclick = () =>
         axios.get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`).then(res => {
             const previousButton = document.getElementById(id);
             const transcriptContainer = document.getElementById('transcripts');
             const newButton = document.createElement('a');
-            newButton.innerHTML = 'Transcript';
             newButton.href = res.Location;
-            newButton.download = true;
-            transcriptContainer.appendChild(newButton);
-            if (previousButton) {
-                transcriptContainer.removeChild(previousButton);
-            }
+            newButton.click();
         });
     return getTranscriptButton;
 };
@@ -35,6 +32,10 @@ export const generateSoloAudioAssets = (recordings = []) => {
     AWSController.initialize()
         .then(() => Promise.map(recordings, file => AWSController.upload(file)))
         .then(res => {
+            // completely replace previous children
+            while (audioContainerEl.firstChild) {
+                audioContainerEl.removeChild(audioContainerEl.firstChild);
+            }
             res.map(s3 => {
                 audioContainerEl.appendChild(createAudioEl(s3.Location));
                 transcriptContainerEl.appendChild(generateTranscriptButton(s3.Key));
@@ -85,10 +86,15 @@ export const b64ToBlob = (b64Data, contentType = '', sliceSize = 512) => {
 };
 
 export const createAudioEl = src => {
+    var source = document.createElement('source');
+    source.type = 'audio/webm';
+    source.src = src;
+
     var audio = document.createElement('audio');
     audio.controls = 'controls';
     audio.preload = 'metadata';
     audio.volume = 1;
-    audio.src = src;
+    audio.style = 'width: 100%; grid-row: 1; grid-column: 1;';
+    audio.appendChild(source);
     return audio;
 };
