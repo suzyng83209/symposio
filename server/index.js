@@ -47,15 +47,19 @@ router.post('/merge', (req, res, next) => {
     }
 
     Promise.map(data, ([localKey, remoteKey]) => {
-        if (!local || !remote) {
+        if (!localKey || !remoteKey) {
             throw new Error('missing parameter: file');
         }
-        return Promise.all([Utils.downloadFile(local), Utils.downloadFile(remote)])
+        return Promise.all([Utils.downloadFile(localKey), Utils.downloadFile(remoteKey)])
             .then(([localPath, remotePath]) => {
-                const name = localPath.slice(localPath.lastIndexOf('/'));
-                return Promise.all([mergeAudio(localPath, remotePath), name]);
+                return mergeAudio(localPath, remotePath);
             })
-            .then(([combinedPath, key]) => S3Utils.uploadFile({ filePath: combinedPath, key }));
+            .then(combinedPath =>
+                S3Utils.uploadFile({
+                    filePath: combinedPath,
+                    key: '/combined' + combinedPath.slice(combinedPath.lastIndexOf('/')),
+                }),
+            );
     })
         .then(s3Keys => res.status(200).send({ s3Keys }))
         .catch(next);

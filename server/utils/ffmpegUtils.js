@@ -8,12 +8,11 @@ function mergeAudio(audioPath1, audioPath2) {
         ffmpeg()
             .input(audioPath1)
             .input(audioPath2)
-            .audioFilters('amix=inputs=2:duration=longest:dropout_transition=0')
-            .audioCodec('libmp3lame')
-            .on('start', () => console.log('starting merging process'))
+            .complexFilter('[0:0][1:0] amix=inputs=2:duration=longest')
+            .on('start', () => console.log('[FFMPEG] - AUDIO MERGE START'))
             .on('error', reject)
             .on('end', () => {
-                console.log('success');
+                console.log('[FFMPEG] - AUDIO MERGE SUCCESS');
                 resolve(outputFile);
             })
             .save(outputFile);

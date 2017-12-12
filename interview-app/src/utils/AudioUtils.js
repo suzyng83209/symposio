@@ -58,13 +58,15 @@ const generateTranscriptButton = (localKey = '', remoteKey = '') => {
     transcriptButton.id = id;
     transcriptButton.onclick = () => {
         transcriptButton.innerHTML = '...';
-        axios.get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`).then(res => {
-            transcriptButton.innerHTML = 'Transcript';
-            const download = document.createElement('a');
-            download.href = res.Location;
-            download.download = true;
-            download.click();
-        });
+        axios
+            .get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`)
+            .then(({ Location, Key }) => {
+                transcriptButton.innerHTML = 'Transcript';
+                const download = document.createElement('a');
+                download.href = Location;
+                download.download = Key;
+                download.click();
+            });
     };
     return transcriptButton;
 };
@@ -95,20 +97,23 @@ export const generateSoloAudioAssets = (recordings = []) => {
 
 export const generateAudioAssets = (recordings = []) => {
     const container = document.getElementById('assets');
-    return axios.post(`api/merge`, { data: recordings }).then(({ s3Keys }) => {
+    return axios.post(`api/merge`, { data: recordings }).then(({ data }) => {
         while (container.firstChild) {
             container.removeChild(container.firstChild);
         }
         recordings.map(([s3Local, s3Remote], i) => {
-            var combined = document.createElement('div');
-            combined.appendChild(createLabel('combined'));
-            combined.appendChild(createAudioEl(s3Keys[i].Location));
-            combined.appendChild(generateTranscriptButton(s3Local.Key, s3Remote.Key));
-            combined.style = 'grid-column: 1; display: flex;';
+            const combinedSource = ((data.s3Keys || {})[i] || {}).Location;
+            container.appendChild(createLabel('combined'));
+            container.appendChild(createAudioEl(combinedSource));
+            container.appendChild(generateTranscriptButton(s3Local.Key, s3Remote.Key));
 
-            container.appendChild(createAsset(s3Local, 'local'));
-            container.appendChild(createAsset(s3Remote, 'remote'));
-            container.appendChild(combined);
+            container.appendChild(createLabel('local'));
+            container.appendChild(createAudioEl(s3Local.Location));
+            container.appendChild(generateTranscriptButton(s3Local.Key));
+
+            container.appendChild(createLabel('remote'));
+            container.appendChild(createAudioEl(s3Remote.Location));
+            container.appendChild(generateTranscriptButton(s3Remote.Key));
         });
     });
 };
