@@ -20,7 +20,7 @@ class InviteModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            emails: null,
+            email: null,
             copyText: 'Copy',
             copyIcon: 'clipboard',
             inviteLink: process.env.REACT_APP_FRONTEND_URL + '/room?roomId=' + props.roomId,
@@ -28,11 +28,10 @@ class InviteModal extends React.Component {
     }
 
     handleInputChange = e => {
-        this.setState({ emails: e.target.value.trim().replace(/(,|;)/g, '') });
+        this.setState({ email: e.target.value.trim().replace(/(,|;)/g, '') });
     };
 
     copyLink = () => {
-        console.log(this.inviteLink);
         try {
             this.inviteLink.select();
             document.execCommand('copy');
@@ -55,7 +54,7 @@ class InviteModal extends React.Component {
                         <div style={{ width: '75%' }}>
                             <Input
                                 placeholder="Email"
-                                value={this.state.emails}
+                                value={this.state.email}
                                 onChange={this.handleInputChange}
                             />
                         </div>

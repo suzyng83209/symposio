@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const Promise = require('bluebird');
-const auth = require('./auth');
 const Utils = require('./utils/Utils');
 const S3Utils = require('./utils/S3Utils');
 const EmailUtils = require('./utils/EmailUtils');
@@ -8,8 +7,7 @@ const WatsonUtils = require('./utils/WatsonUtils');
 const mergeAudio = require('./utils/ffmpegUtils').mergeAudio;
 
 router.post('/email/send', (req, res, next) => {
-    var { data } = req.body,
-        promise;
+    var { data } = req.body;
 
     if (!data) {
         throw new Error('no data');
