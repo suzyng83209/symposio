@@ -3,8 +3,22 @@ const Promise = require('bluebird');
 const auth = require('./auth');
 const Utils = require('./utils/Utils');
 const S3Utils = require('./utils/S3Utils');
+const EmailUtils = require('./utils/EmailUtils');
 const WatsonUtils = require('./utils/WatsonUtils');
 const mergeAudio = require('./utils/ffmpegUtils').mergeAudio;
+
+router.post('/email/send', (req, res, next) => {
+    var { data } = req.body,
+        promise;
+
+    if (!data) {
+        throw new Error('no data');
+    }
+
+    return EmailUtils.send(data)
+        .then(body => res.status(200).send(body))
+        .catch(next);
+});
 
 router.post('/upload', (req, res, next) => {
     var { data } = req.body;

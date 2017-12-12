@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ModalWrapper from './ModalWrapper';
@@ -19,7 +20,7 @@ class InviteModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: null,
+            emails: null,
             copyText: 'Copy',
             copyIcon: 'clipboard',
             inviteLink: process.env.REACT_APP_FRONTEND_URL + '/room?roomId=' + props.roomId,
@@ -27,7 +28,7 @@ class InviteModal extends React.Component {
     }
 
     handleInputChange = e => {
-        this.setState({ email: e.target.value });
+        this.setState({ emails: e.target.value.trim().replace(/(,|;)/g, '') });
     };
 
     copyLink = () => {
@@ -41,6 +42,10 @@ class InviteModal extends React.Component {
         this.setState({ copyIcon: 'check', copyText: 'Copied' });
     };
 
+    inviteGuest = () => {
+        axios.post('/api/email/send', { data: this.state.email }).then(console.log);
+    };
+
     render() {
         const { inviteLink, copyIcon, copyText } = this.state;
         return (
@@ -48,10 +53,16 @@ class InviteModal extends React.Component {
                 <ModalBody>
                     <FlexWrapper horizontal>
                         <div style={{ width: '75%' }}>
-                            <Input placeholder="Email" onChange={this.handleInputChange} />
+                            <Input
+                                placeholder="Email"
+                                value={this.state.emails}
+                                onChange={this.handleInputChange}
+                            />
                         </div>
                         <div style={{ width: '25%' }}>
-                            <IconButton icon="envelope">Invite</IconButton>
+                            <IconButton icon="envelope" onClick={this.inviteGuest}>
+                                Invite
+                            </IconButton>
                         </div>
                     </FlexWrapper>
                     <FlexWrapper horizontal>
