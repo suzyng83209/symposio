@@ -57,7 +57,7 @@ router.post('/merge', (req, res, next) => {
             .then(combinedPath =>
                 S3Utils.uploadFile({
                     filePath: combinedPath,
-                    key: '/combined' + combinedPath.slice(combinedPath.lastIndexOf('/')),
+                    key: 'combined' + combinedPath.slice(combinedPath.lastIndexOf('/')),
                 }),
             );
     })

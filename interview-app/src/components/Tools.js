@@ -99,7 +99,13 @@ class Tools extends React.Component {
     }
 
     render() {
-        const { sendCommand, recorderState, receiveCommand, receiveData } = this.props;
+        const {
+            sendCommand,
+            recorderState,
+            receiveCommand,
+            receiveData,
+            isGeneratingAudio,
+        } = this.props;
         return (
             <ToolsContainer id="tools" open={this.state.open}>
                 <Toolbar>{this.renderTabs()}</Toolbar>
@@ -107,6 +113,7 @@ class Tools extends React.Component {
                     <Recorder
                         sendCommand={sendCommand}
                         recorderState={recorderState}
+                        isGeneratingAudio={isGeneratingAudio}
                         active={this.state.current === 'recording-tools'}
                     />
                     <Messenger
@@ -123,10 +130,11 @@ class Tools extends React.Component {
 export default Tools;
 
 Tools.propTypes = {
-    receiveData: PropTypes.func,
     receiveCommand: PropTypes.func,
+    receiveData: PropTypes.func,
     sendCommand: PropTypes.func,
     isInterviewer: PropTypes.bool,
+    isGeneratingAudio: PropTypes.bool,
     recorderState: PropTypes.string,
 };
 

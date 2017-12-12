@@ -1,13 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Text } from './styled-components/Texts';
-import { IconButton } from './styled-components/Buttons';
 import { GridWrapper } from './styled-components/Misc';
+import { IconButton, LoadingButton } from './styled-components/Buttons';
 
 const AutoGrid = GridWrapper.extend`
     grid-auto-rows: 32px;
     grid-template-rows: none;
-    grid-template-columns: 48px 1fr 72px;
+    grid-template-columns: 72px 1fr 72px;
+    box-sizing: border-box;
+    padding: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    height: 50%;
+    margin: 10% 0;
+    @media screen and (max-height: 600px) {
+        margin: 16px 0;
+    }
+    @media screen and (max-height: 480px) {
+        margin: 0;
+    }
+`;
+
+const RecorderContainer = styled.div`
+    height: 100%;
+    overflow-y: scroll;
+    display: ${props => (props.active ? 'initial' : 'none')};
 `;
 
 class Recorder extends React.Component {
@@ -50,18 +69,22 @@ class Recorder extends React.Component {
     }
 
     render() {
-        const style = {
-            display: this.props.active ? 'initial' : 'none',
-        };
+        const { active, isGeneratingAudio, sendCommand } = this.props;
         return (
-            <div style={style}>
+            <RecorderContainer active={active}>
                 <h2>Recording Tools</h2>
                 {this.renderButtons()}
-                <AutoGrid gutter={4} id="assets" />
-                <IconButton icon="" onClick={() => this.props.sendCommand('upload-audio')}>
+                <AutoGrid gutter={4} id="assets">
+                    <div style={{ gridColumn: '1 / 4' }}>Audio assets will appear here.</div>
+                </AutoGrid>
+                <LoadingButton
+                    icon="refresh"
+                    loading={isGeneratingAudio}
+                    onClick={() => sendCommand('upload-audio')}
+                >
                     Generate Audio
-                </IconButton>
-            </div>
+                </LoadingButton>
+            </RecorderContainer>
         );
     }
 }
@@ -69,6 +92,7 @@ class Recorder extends React.Component {
 export default Recorder;
 
 Recorder.propTypes = {
+    isGeneratingAudio: PropTypes.bool,
     recorderState: PropTypes.string,
     sendCommand: PropTypes.func,
 };

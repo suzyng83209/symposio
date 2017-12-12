@@ -47,6 +47,7 @@ class RoomCreator extends React.Component {
                             onCommandSend,
                             onCommandReceived,
                             onDataReceived,
+                            isGeneratingAudio,
                         }) => (
                             <FlexWrapper horizontal id="media-parent">
                                 <VideoContainer />
@@ -56,6 +57,7 @@ class RoomCreator extends React.Component {
                                     sendCommand={onCommandSend}
                                     receiveData={onDataReceived}
                                     recorderState={recorderState}
+                                    isGeneratingAudio={isGeneratingAudio}
                                 />
                             </FlexWrapper>
                         )}

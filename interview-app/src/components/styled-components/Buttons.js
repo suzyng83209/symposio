@@ -44,11 +44,15 @@ export const IconButton = ({ icon, onClick, disabled, children }) => (
 );
 
 export const LoadingButton = ({ loading, icon, children, onClick }) => {
-    const Icon = icon && <Icon icon={icon} />;
-    const LoadingIcon = loading ? <Icon icon="spinner fa-pulse" /> : Icon;
+    var loadingIcon;
+    if (loading) {
+        loadingIcon = <Icon icon="spinner fa-pulse" />;
+    } else if (icon) {
+        loadingIcon = <Icon icon={icon} />;
+    }
     return (
         <Button disabled={loading} onClick={onClick}>
-            {LoadingIcon}
+            {loadingIcon}
             {children && ' '}
             {children}
         </Button>

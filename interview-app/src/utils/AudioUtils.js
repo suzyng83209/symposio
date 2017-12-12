@@ -6,7 +6,7 @@ import AWSController from '../controllers/AWSController';
 const COLOUR = {
     local: 'red',
     remote: 'green',
-    combined: 'yellow',
+    combined: 'orange',
 };
 
 const createAsset = (s3, type) => {
@@ -28,6 +28,7 @@ const createLabel = text => {
         'padding: 4px',
         'display: flex',
         'min-width: 48px',
+        'width: 100%',
         'border-radius: 4px',
         'align-items: center',
         'box-sizing: border-box',
@@ -60,11 +61,11 @@ const generateTranscriptButton = (localKey = '', remoteKey = '') => {
         transcriptButton.innerHTML = '...';
         axios
             .get(`/api/transcript?localKey=${localKey}&remoteKey=${remoteKey}`)
-            .then(({ Location, Key }) => {
+            .then(({ data }) => {
                 transcriptButton.innerHTML = 'Transcript';
                 const download = document.createElement('a');
-                download.href = Location;
-                download.download = Key;
+                download.download = data.Location;
+                download.href = data.Location;
                 download.click();
             });
     };
@@ -79,20 +80,23 @@ const generateTranscriptButton = (localKey = '', remoteKey = '') => {
  */
 export const generateSoloAudioAssets = (recordings = []) => {
     var containerEl = document.getElementById('assets');
-    AWSController.initialize()
-        .then(() => Promise.map(recordings, file => AWSController.upload(file)))
-        .then(res => {
-            // completely replace previous children
-            while (containerEl.firstChild) {
-                containerEl.removeChild(containerEl.firstChild);
-            }
-            res.map(s3 => {
-                containerEl.appendChild(createLabel('local'));
-                containerEl.appendChild(createAudioEl(s3.Location));
-                containerEl.appendChild(generateTranscriptButton(s3.Key));
-            });
-            return;
-        });
+    return new Promise((resolve, reject) => {
+        AWSController.initialize()
+            .then(() => Promise.map(recordings, file => AWSController.upload(file)))
+            .then(res => {
+                // completely replace previous children
+                while (containerEl.firstChild) {
+                    containerEl.removeChild(containerEl.firstChild);
+                }
+                res.map(s3 => {
+                    containerEl.appendChild(createLabel('local'));
+                    containerEl.appendChild(createAudioEl(s3.Location));
+                    containerEl.appendChild(generateTranscriptButton(s3.Key));
+                });
+                return resolve();
+            })
+            .catch(reject);
+    });
 };
 
 export const generateAudioAssets = (recordings = []) => {
@@ -115,6 +119,7 @@ export const generateAudioAssets = (recordings = []) => {
             container.appendChild(createAudioEl(s3Remote.Location));
             container.appendChild(generateTranscriptButton(s3Remote.Key));
         });
+        return;
     });
 };
 

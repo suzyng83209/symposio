@@ -104,7 +104,10 @@ class Room extends React.Component {
 
     onCommandSend = command => {
         if (RTCController.isRoomEmpty() && command === 'upload-audio') {
-            return generateSoloAudioAssets(this.state.recordings);
+            this.setState({ isActionLoading: true });
+            return generateSoloAudioAssets(this.state.recordings).then(() => {
+                this.setState({ isActionLoading: false });
+            });
         }
         RTCController.sendCommand(command);
         return this.handleRecorderCommand(command);
@@ -118,8 +121,12 @@ class Room extends React.Component {
         if (data.length && data.length !== this.state.recordings.length) {
             throw new Error('Uneven number of recordings between local and remote streams');
         }
-
-        return generateAudioAssets(data.map((remoteKey, i) => [this.state.s3Keys[i], remoteKey]));
+        this.setState({ isActionLoading: true });
+        return generateAudioAssets(
+            data.map((remoteKey, i) => [this.state.s3Keys[i], remoteKey]),
+        ).then(() => {
+            this.setState({ isActionLoading: false });
+        });
     };
 
     'upload-audio' = () => {
@@ -136,12 +143,13 @@ class Room extends React.Component {
     };
 
     render() {
-        const { loading, countdown, recorderState } = this.state;
+        const { loading, countdown, recorderState, isActionLoading } = this.state;
         if (loading) return null;
         return this.props.children({
             countdown,
             recorderState,
             onCommandSend: this.onCommandSend,
+            isGeneratingAudio: this.state.isActionLoading,
             onCommandReceived: this.onCommandReceived,
             onDataReceived: this.onDataReceived,
         });
