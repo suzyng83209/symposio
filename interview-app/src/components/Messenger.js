@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import styled from 'styled-components';
-import { MessageContainer } from './Containers';
-import { GridWrapper } from './Misc';
-import { MultiInput } from './Inputs';
-import { Icon } from './Buttons';
+import { MessageContainer } from './styled-components/Containers';
+import { GridWrapper } from './styled-components/Misc';
+import { MultiInput } from './styled-components/Inputs';
+import Icon from './styled-components/Icons';
 import RTCController from '../controllers/RTCController';
 
 const InputContainer = styled.div`

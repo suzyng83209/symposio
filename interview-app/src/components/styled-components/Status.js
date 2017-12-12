@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Icon } from './Buttons';
+import Icon from './Icons';
 
 const getColour = status => {
     switch (status) {

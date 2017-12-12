@@ -1,9 +1,9 @@
 import React from 'react';
-import { IconButton, Button } from './Buttons';
+import { IconButton, Button } from './styled-components/Buttons';
 import RoomControls from './RoomControls';
 import RTCController from '../controllers/RTCController';
-import { FlexWrapper } from './Misc';
-import { VideoContainer } from './Containers';
+import { FlexWrapper } from './styled-components/Misc';
+import { VideoContainer } from './styled-components/Containers';
 import Tools from './Tools';
 import Room from './Room';
 import VideoOverlay from './VideoOverlay';
@@ -36,6 +36,7 @@ class RoomCreator extends React.Component {
             <div style={style}>
                 <RoomControls
                     onSelectRoomId={this.onSelectRoomId}
+                    dispatchModal={this.props.dispatchModal}
                     isRoomOpened={Boolean(this.state.roomId)}
                 />
                 {this.state.roomId && (

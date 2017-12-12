@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, IconButton } from './Buttons';
-import { ToolsContainer, MessageContainer } from './Containers';
+import { ToolsContainer, MessageContainer } from './styled-components/Containers';
+import { GridWrapper, Grid } from './styled-components/Misc';
+import { IconButton } from './styled-components/Buttons';
+import Icon from './styled-components/Icons';
 import Messenger from './Messenger';
-import { GridWrapper, Grid } from './Misc';
 
 const ToolbarWrapper = styled.div`
     position: absolute;

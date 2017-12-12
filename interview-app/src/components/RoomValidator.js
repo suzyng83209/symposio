@@ -1,9 +1,9 @@
 import React from 'react';
 import { withParams } from '../utils/Utils';
-import { VideoContainer } from './Containers';
-import RoomControls from './RoomControls';
+import { VideoContainer } from './styled-components/Containers';
 import RTCController from '../controllers/RTCController';
-import { FlexWrapper } from './Misc';
+import { FlexWrapper } from './styled-components/Misc';
+import RoomControls from './RoomControls';
 import VideoOverlay from './VideoOverlay';
 import Tools from './Tools';
 import Room from './Room';

@@ -3,7 +3,7 @@ import React from 'react';
 import Promise from 'bluebird';
 import PropTypes from 'prop-types';
 import RecordRTC from 'recordrtc';
-import { Countdown } from './Misc';
+import { Countdown } from './styled-components/Misc';
 import RTCController from '../controllers/RTCController';
 import AWSController from '../controllers/AWSController';
 import { generateSoloAudioAssets, generateAudioAssets } from '../utils/AudioUtils';

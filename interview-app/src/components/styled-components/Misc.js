@@ -29,6 +29,7 @@ export const Countdown = ({ count, width }) => (
 );
 
 export const FlexWrapper = styled.div`
+    width: 100%;
     height: 100%;
     display: flex;
     align-items: center;

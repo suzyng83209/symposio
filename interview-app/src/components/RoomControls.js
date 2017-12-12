@@ -1,10 +1,11 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import _ from 'underscore';
-import { Button, IconButton } from './Buttons';
-import { InputGroup } from './Inputs';
-import { StatusTextIcon } from './Status';
+import { Button, IconButton } from './styled-components/Buttons';
+import { InputGroup } from './styled-components/Inputs';
+import { StatusTextIcon } from './styled-components/Status';
 import { isValidRoomId } from '../utils/Utils';
 import RTCController from '../controllers/RTCController';
 
@@ -38,7 +39,7 @@ class RoomControls extends React.Component {
         this.state = {
             status: '',
             roomId: props.roomId || '',
-            isTyping: false
+            isTyping: false,
         };
         this.checkRoomId = _.debounce(this.checkRoomId, DEBOUNCE_TIME);
     }
@@ -57,12 +58,12 @@ class RoomControls extends React.Component {
         this.setState({ isTyping: false });
         if (!roomId) {
             return this.setState({
-                status: ''
+                status: '',
             });
         }
         if (!isValidRoomId(roomId)) {
             return this.setState({
-                status: 'not valid'
+                status: 'not valid',
             });
         }
         return RTCController.checkRoom(roomId).then(doesRoomExist => {
@@ -94,7 +95,20 @@ class RoomControls extends React.Component {
 
     renderButtons = () => {
         if (!this.state.roomId) return;
-        if (this.props.isRoomOpened) return <Button onClick={this.closeRoom}>Close Room</Button>;
+        if (this.props.isRoomOpened)
+            return (
+                <div>
+                    <IconButton
+                        icon="user-plus"
+                        onClick={() =>
+                            this.props.dispatchModal('INVITE', { roomId: this.state.roomId })
+                        }
+                    >
+                        Invite
+                    </IconButton>
+                    <Button onClick={this.closeRoom}>Close Room</Button>
+                </div>
+            );
         return (
             <IconButton
                 icon="video-camera"
@@ -137,9 +151,9 @@ RoomControls.propTypes = {
     onSelectRoomId: PropTypes.func,
     isRoomOpened: PropTypes.bool,
     isModerator: PropTypes.bool,
-    roomId: PropTypes.string
+    roomId: PropTypes.string,
 };
 
 RoomControls.defaultProps = {
-    onSelectRoomId: () => {}
+    onSelectRoomId: () => {},
 };

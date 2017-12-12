@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import Icon from './Icons';
 
 export const Button = styled.button`
     color: white;
@@ -30,12 +31,12 @@ export const InvertedButton = Button.extend`
     }
 `;
 
-export const WideButton = Button.extend`width: 100%;`;
-
-export const Icon = ({ icon }) => <i className={`fa fa-${icon}`} aria-hidden="true" />;
+export const WideButton = Button.extend`
+    width: 100%;
+`;
 
 export const IconButton = ({ icon, onClick, disabled, children }) => (
-    <Button onClick={onClick} disabled={disabled} >
+    <Button onClick={onClick} disabled={disabled}>
         <Icon icon={icon} />
         {children && ' '}
         {children}
