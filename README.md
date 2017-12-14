@@ -36,7 +36,7 @@ Go to localhost:9000 or express-app port to view changes
 ## Run Docker on EC2
 ```
 // pull directly from docker hub
-docker run -dit -p 80:9000 -e REACT_APP_URL=https://symposio.stream BASE_URL=https://symposio.stream suzyng83209/symposio
+docker run -d -p 80:9000 suzyng83209/symposio
 ```
 
 # Details

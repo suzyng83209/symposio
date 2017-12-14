@@ -7,7 +7,8 @@ FROM suzyng83209/fluent-ffmpeg
 # - fluent-ffmpeg
 # - build/web essentials
 
-ENV REACT_APP_URL=localhost:9000
+ENV REACT_APP_URL=https://symposio.stream
+ENV BASE_URL=https://symposio.stream
 
 COPY . /app
 
