@@ -14,7 +14,6 @@ COPY . /app
 WORKDIR /app
 
 RUN npm install && \
-    npm run build-app && \
-    chmod +x docker/start.sh
+    npm run build-app
 
 CMD [ "npm", "start" ]
