@@ -7,7 +7,7 @@ FROM suzyng83209/fluent-ffmpeg
 # - fluent-ffmpeg
 # - build/web essentials
 
-ENV BASE_URL=localhost:9000
+ENV REACT_APP_URL=localhost:9000
 
 COPY . /app
 
@@ -17,4 +17,4 @@ RUN npm install && \
     npm run build-app && \
     chmod +x docker/start.sh
 
-CMD [ "sh", "docker/start.sh" ]
+CMD [ "npm", "start" ]

@@ -23,7 +23,7 @@ class InviteModal extends React.Component {
             email: '',
             copyText: 'Copy',
             copyIcon: 'clipboard',
-            inviteLink: process.env.REACT_APP_FRONTEND_URL + '/room?roomId=' + props.roomId,
+            inviteLink: process.env.REACT_APP_URL + '/room?roomId=' + props.roomId,
         };
     }
 
